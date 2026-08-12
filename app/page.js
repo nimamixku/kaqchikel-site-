@@ -46,6 +46,94 @@ const entries = [
   { headword: "atz'an", definition: "sal", literal: "" },
 ];
 
+const intakeFiles = [
+  "¿De que país es usted?.m4a",
+  "¿Está embarazada?.m4a",
+  "¿Este año recibió la vacuna contra la influenza?.m4a",
+  "¿Estuvo detenido por más de tres dias?.m4a",
+  "¿Estuvo detenido por más de una semana? .m4a",
+  "¿Ha comido algo en los últimos tres días?.m4a",
+  "¿Ha comido hoy?.m4a",
+  "¿Ha estado vomitando?.m4a",
+  "¿Ha pasado más de un mes desde que salió de su comunidad de origen?.m4a",
+  "¿Ha pasado más de una semana desde que salió de su comunidad de origen?.m4a",
+  "¿Ha tenido piojos durante de su viaje?.m4a",
+  "¿Ha tomado algo hoy?.m4a",
+  "¿Habla español?, ¿Yach´ön pa kaxlan ch´ab´äl?, Do you speak Spanish?.m4a",
+  "¿Le dieron algo de comer o tomar cuando estuvo detenido?.m4a",
+  "¿Le pica la cabeza?.m4a",
+  "¿Le pica la piel?.m4a",
+  "¿Lo toma para diabetes?.m4a",
+  "¿Lo toma para dolor de cabeza?.m4a",
+  "¿Lo toma para la presión?.m4a",
+  "¿Lo toma para problemas del estómago?.m4a",
+  "¿Puede enseñarmelo, por favor.m4a",
+  "¿Puede enseñarmelo, por favor?.m4a",
+  "¿Puede escribir en español?, ¿Awetaman yatz'ib'än pa kaxlan ch'ab'äl?, Can you write in Spanish?.m4a",
+  "¿Puede leer en español?.m4a",
+  "¿Puedeo ver sus oídos?.m4a",
+  "¿Puedo escuchar sus pulmones?.m4a",
+  "¿Puedo tomar su temperatura?.m4a",
+  "¿Puedo ver su garganta?.m4a",
+  "¿Qué idiomas habla usted?.m4a",
+  "¿Recibió atención medica por alguna enfermedad mientras estaba detenido?.m4a",
+  "¿Su diarrea es acuosa o floja?.m4a",
+  "¿Su diarrea tiene sangre?.m4a",
+  "¿Tiene alergia a algún medicamento?.m4a",
+  "¿Tiene algun problema de salud serio o que necesita ser tratado inmediatemente.m4a",
+  "¿Tiene alguna enfermedad crónica?.m4a",
+  "¿Tiene alguna herida o lesión?.m4a",
+  "¿Tiene diarrea más de tres veces al día?.m4a",
+  "¿Tiene diarrea?.m4a",
+  "¿Tiene dolor abdominal?.m4a",
+  "¿Tiene dolor de cabeza?.m4a",
+  "¿Tiene el medicamento con usted.m4a",
+  "¿Tiene el medicamento con usted?.m4a",
+  "¿Tiene fiebre o escalofríos?.m4a",
+  "¿Tiene mocos:líquidos?.m4a",
+  "¿Tiene náuseas?.m4a",
+  "¿Tiene sarpullido o cambios en la piel de sus pies?.m4a",
+  "¿Tiene sarpullido o cambios en la piel?.m4a",
+  "¿Tiene tos con flema?.m4a",
+  "¿Tiene tos?.m4a",
+  "¿Toma algún medicamento?.m4a",
+  "¿Tomó algún medicamento cuando estaba detenido?.m4a",
+  "¿podría ir conmigo?.m4a",
+  "Ahora se siente mejor?.m4a",
+  "Bienvenidos a los Estados Unidos.m4a",
+  "Cuando estuvo detenido.m4a",
+  "Le gustaría vacunarse?.m4a",
+  "Le podemos dar la vacuna contra la influenza hoy.m4a",
+  "Quisiera examinarle.m4a",
+  "Tuvo diarrea?.m4a",
+  "Tuvo dolor de cabeza?.m4a",
+  "Tuvo dolor de garganta?.m4a",
+  "Tuvo dolor de oído?.m4a",
+  "Tuvo fiebre?.m4a",
+  "Tuvo náuseas?.m4a",
+  "Tuvo tos?.m4a",
+  "Vomitó?.m4a",
+  "estamos felices de tenerle aqui.m4a",
+  "y la recomendamos.m4a",
+];
+
+function audioSrc(filename) {
+  return "/audio/" + encodeURIComponent("Kaqchikel Casa Alitas") + "/" + encodeURIComponent(filename);
+}
+
+function spanishTitle(filename) {
+  const raw = filename.replace(/\.m4a$/i, "").trim();
+  const parts = raw.split(",");
+  // Only treat as trilingual (Spanish, Kaqchikel, English) when there are
+  // at least 3 comma-separated segments — a single comma inside an
+  // ordinary Spanish sentence (e.g. "¿Puede enseñarmelo, por favor") should
+  // stay intact.
+  if (parts.length >= 3) {
+    return parts[0].trim();
+  }
+  return raw;
+}
+
 function normalizeLetter(word) {
   const c = word.trim().charAt(0).toLowerCase();
   return c.replace(/[^a-zñ']/i, "") || "#";
@@ -55,6 +143,17 @@ const ALPHABET = "abcdefghijklmnopqrstuvwxyz".split("");
 
 export default function Home() {
   const [query, setQuery] = useState("");
+  const [intakeQuery, setIntakeQuery] = useState("");
+
+  const filteredIntake = useMemo(() => {
+    const q = intakeQuery.trim().toLowerCase();
+    let list = intakeFiles.filter((fn) => {
+      if (!q) return true;
+      return fn.toLowerCase().includes(q);
+    });
+    list.sort((a, b) => a.localeCompare(b, "es"));
+    return list;
+  }, [intakeQuery]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -139,6 +238,11 @@ export default function Home() {
                 <div className="definition">{e.definition}</div>
                 {e.literal && (
                   <div className="literal-note">{e.literal}</div>
+                )}
+                {e.audio && (
+                  <audio className="entry-audio" controls src={`/audio/${e.audio}`}>
+                    Your browser doesn't support audio playback.
+                  </audio>
                 )}
               </div>
             ))}
@@ -230,6 +334,40 @@ export default function Home() {
           Salazar, Juan Yool, Alejandro Choc. Brigham Young University,
           Provo, Utah, U.S.A. — Language and Intercultural Research Center,
           New World Languages Research Division.
+        </div>
+      </section>
+
+      <section className="sentence-section">
+        <h2>Casa Alitas — Preguntas de Admisión</h2>
+        <p className="section-note">
+          Un conjunto de preguntas grabadas de admisión/evaluación de salud,
+          guardadas juntas como su propia colección.
+          {" "}{intakeFiles.length} grabaciones.
+        </p>
+
+        <div className="search-field intake-search">
+          <input
+            type="text"
+            placeholder="buscar una pregunta…"
+            value={intakeQuery}
+            onChange={(e) => setIntakeQuery(e.target.value)}
+          />
+        </div>
+
+        <div className="intake-list">
+          {filteredIntake.length === 0 && (
+            <div className="empty-state">ninguna pregunta coincide con tu búsqueda.</div>
+          )}
+          {filteredIntake.map((fn, i) => (
+            <div className="intake-item" key={i}>
+              <div className="intake-title">
+                {spanishTitle(fn)}
+              </div>
+              <audio className="entry-audio" controls src={audioSrc(fn)}>
+                Tu navegador no admite la reproducción de audio.
+              </audio>
+            </div>
+          ))}
         </div>
       </section>
 

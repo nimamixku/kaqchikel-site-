@@ -181,6 +181,32 @@
     color:var(--ink-soft);
     margin-top:4px;
   }
+  .entry-audio{
+    display:block;
+    height:32px;
+    margin-top:8px;
+    max-width:280px;
+  }
+
+  .intake-search{
+    margin-bottom:20px;
+  }
+  .intake-list{
+    display:flex;
+    flex-direction:column;
+    gap:0;
+  }
+  .intake-item{
+    padding:12px 0;
+    border-bottom:1px solid var(--rule);
+  }
+  .intake-item:last-child{border-bottom:none;}
+  .intake-title{
+    font-size:13.5px;
+    line-height:1.5;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
 
   .empty-state{
     text-align:center;
