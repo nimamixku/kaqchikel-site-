@@ -169,6 +169,193 @@ function parseKaqchikelWord(filename) {
   return { headword, spanish, english };
 }
 
+function stripDiacritics(s) {
+  return String(s || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+// Loose normalization for matching only (never used for display): lowercase,
+// strip accents, drop punctuation that varies source-to-source, collapse
+// whitespace. Keeps internal apostrophes since Kaqchikel uses them for
+// glottal stops (k'a, ch'ab'äl, etc.) — those are meaningful, not punctuation.
+function normalizeForMatch(s) {
+  return stripDiacritics(String(s || "").toLowerCase())
+    .replace(/[¿?¡!.,;:"“”]/g, "")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+// A glossary definition sometimes carries an inline English gloss in
+// parentheses, e.g. "te vas a bañar (you are going to take a bath)".
+function splitDefinition(definition) {
+  const m = /\(([^)]+)\)\s*$/.exec(definition || "");
+  if (!m) return { spanish: definition || "", english: "" };
+  return {
+    spanish: definition.slice(0, m.index).trim(),
+    english: m[1].trim(),
+  };
+}
+
+// Every place on this site where a Kaqchikel word/phrase/sentence has a
+// known Spanish and/or English translation already gets folded into one
+// searchable index. This is a lookup over real recorded/transcribed data —
+// not a trained model — so "TRANSLATE" only ever returns things that have
+// actually been collected.
+const TRANSLATION_INDEX = (() => {
+  const idx = [];
+
+  entries.forEach((e) => {
+    const { spanish, english } = splitDefinition(e.definition);
+    idx.push({ kaqchikel: e.headword, spanish, english, source: "glossary" });
+  });
+
+  kaqchikelWordFiles.forEach((fn) => {
+    const { headword, spanish, english } = parseKaqchikelWord(fn);
+    idx.push({
+      kaqchikel: headword,
+      spanish,
+      english,
+      source: "words",
+      audio: { folderName: "Kaqchikel Words", filename: fn },
+    });
+  });
+
+  // A handful of intake recordings were also filed as
+  // "Español, Kaqchikel, English.m4a" — those double as translation pairs.
+  intakeFiles.forEach((fn) => {
+    const parts = fn
+      .replace(/\.m4a$/i, "")
+      .split(",")
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (parts.length >= 3) {
+      idx.push({
+        kaqchikel: parts[1],
+        spanish: parts[0],
+        english: parts[2],
+        source: "intake",
+        audio: { folderName: "Kaqchikel Casa Alitas", filename: fn },
+      });
+    }
+  });
+
+  return idx
+    .filter((item) => item.kaqchikel || item.spanish || item.english)
+    .map((item) => ({
+      ...item,
+      _k: normalizeForMatch(item.kaqchikel),
+      _s: normalizeForMatch(item.spanish),
+      _e: normalizeForMatch(item.english),
+    }));
+})();
+
+// Simple substring/exact matching across all three languages — no
+// translation is invented, only what's already in TRANSLATION_INDEX is
+// ever returned. Exact matches rank above partial ones.
+function searchTranslations(rawQuery) {
+  const q = normalizeForMatch(rawQuery);
+  if (!q) return [];
+
+  const scored = [];
+  for (const item of TRANSLATION_INDEX) {
+    let score = 0;
+    [item._k, item._s, item._e].forEach((val) => {
+      if (!val) return;
+      if (val === q) score = Math.max(score, 3);
+      else if (val.includes(q) || q.includes(val)) score = Math.max(score, 2);
+    });
+    if (score > 0) scored.push({ item, score });
+  }
+  scored.sort((a, b) => b.score - a.score);
+
+  const seen = new Set();
+  const results = [];
+  for (const s of scored) {
+    const key = s.item._k + "|" + s.item._s + "|" + s.item._e;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    results.push(s.item);
+    if (results.length >= 8) break;
+  }
+  return results;
+}
+
+function TranslateBox() {
+  const [q, setQ] = useState("");
+  const results = useMemo(() => searchTranslations(q), [q]);
+  const hasQuery = q.trim().length > 0;
+
+  return (
+    <div className="panel translate-box">
+      <div className="translate-box-title">
+        <span className="panel-title">
+          <AudioSignalIcon /> TRANSLATE
+        </span>
+        <span className="panel-count">beta</span>
+      </div>
+      <div className="panel-body translate-box-body">
+        <p className="section-note">
+          Looks up your word or sentence against everything already recorded
+          and transcribed on this site. It's a search over real data, not a
+          trained model yet — so it only finds what's actually been
+          collected so far, and tells you honestly when something isn't
+          there.
+        </p>
+        <div className="search-field">
+          <input
+            type="text"
+            placeholder="escribe una palabra o frase en Kaqchikel o Español…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
+        {hasQuery && results.length === 0 && (
+          <div className="empty-state">
+            no match in our recorded data yet — try a shorter phrase or a
+            single word, or browse the sections below.
+          </div>
+        )}
+        {results.length > 0 && (
+          <div className="translate-results">
+            {results.map((r, i) => (
+              <div className="entry" key={i}>
+                {r.kaqchikel && (
+                  <div className="entry-head">
+                    <span className="lang-label">kaq</span>
+                    <span className="headword">{r.kaqchikel}</span>
+                  </div>
+                )}
+                {r.spanish && (
+                  <div className="definition">
+                    <span className="lang-label">es</span>
+                    {r.spanish}
+                  </div>
+                )}
+                {r.english && (
+                  <div className="definition">
+                    <span className="lang-label">en</span>
+                    {r.english}
+                  </div>
+                )}
+                {r.audio && (
+                  <audio
+                    className="entry-audio"
+                    controls
+                    src={audioSrc(r.audio.folderName, r.audio.filename)}
+                  >
+                    Tu navegador no admite la reproducción de audio.
+                  </audio>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz".split("");
 
 // Each audio collection is its own self-contained folder + file list.
@@ -645,6 +832,8 @@ export default function Home() {
           {entries.length} entr{entries.length === 1 ? "y" : "ies"}
         </div>
       </header>
+
+      <TranslateBox />
 
       <details className="panel">
         <summary>

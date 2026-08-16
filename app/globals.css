@@ -222,6 +222,32 @@ header p.desc{
   margin:14px 0 18px;
 }
 
+.translate-box{
+  border:1px solid var(--line);
+}
+.translate-box-title{
+  padding:14px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:14px;
+  color:var(--ink);
+  border-bottom:1px solid var(--line-soft);
+}
+.translate-box-body{
+  border-top:none;
+}
+.translate-results{
+  margin-top:4px;
+}
+.translate-results .definition{
+  display:flex;
+  gap:10px;
+}
+.translate-results .definition .lang-label{
+  flex:none;
+}
+
 .sentence-card{
   border:1px solid var(--line);
   padding:18px 16px;
