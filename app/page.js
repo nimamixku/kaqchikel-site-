@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import kaqchikelWordFiles from "./kaqchikelWordFiles.json";
 
 // Entries transcribed from source documents. Add new entries to this array.
 const entries = [
@@ -117,17 +118,13 @@ const intakeFiles = [
   "y la recomendamos.m4a",
 ];
 
-function audioSrc(filename) {
-  return "/audio/" + encodeURIComponent("Kaqchikel Casa Alitas") + "/" + encodeURIComponent(filename);
+function audioSrc(folderName, filename) {
+  return "/audio/" + encodeURIComponent(folderName) + "/" + encodeURIComponent(filename);
 }
 
 function spanishTitle(filename) {
   const raw = filename.replace(/\.m4a$/i, "").trim();
   const parts = raw.split(",");
-  // Only treat as trilingual (Spanish, Kaqchikel, English) when there are
-  // at least 3 comma-separated segments — a single comma inside an
-  // ordinary Spanish sentence (e.g. "¿Puede enseñarmelo, por favor") should
-  // stay intact.
   if (parts.length >= 3) {
     return parts[0].trim();
   }
@@ -139,21 +136,178 @@ function normalizeLetter(word) {
   return c.replace(/[^a-zñ']/i, "") || "#";
 }
 
+// Filenames for this collection follow "kaqchikel, español, english.m4a"
+// (some source files only have kaqchikel + español, or kaqchikel alone).
+// This parses that back apart for display without needing to rename
+// the original archive files.
+function parseKaqchikelWord(filename) {
+  const raw = filename.replace(/\.m4a$/i, "").trim();
+  let parts = raw
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  if (parts.length === 1) {
+    // a few source files use "!"/"?" instead of commas between languages
+    const fallback = raw
+      .split(/(?<=[!?])\s+(?=[A-ZÁÉÍÑÓÚÜ¿¡])/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (fallback.length > 1) parts = fallback;
+  }
+
+  const headword = parts[0] || raw;
+  let spanish = "";
+  let english = "";
+  if (parts.length === 2) {
+    spanish = parts[1];
+  } else if (parts.length >= 3) {
+    spanish = parts.slice(1, parts.length - 1).join(", ");
+    english = parts[parts.length - 1];
+  }
+  english = english.replace(/\.?m4a$/i, "").trim();
+  return { headword, spanish, english };
+}
+
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz".split("");
 
-export default function Home() {
-  const [query, setQuery] = useState("");
-  const [intakeQuery, setIntakeQuery] = useState("");
+// Each audio collection is its own self-contained folder + file list.
+// To add a new one later: add a files array above (like intakeFiles),
+// then add one entry here with its folder name, title, and description.
+const audioCollections = [
+  {
+    key: "casa-alitas",
+    title: "BORDER INTAKE QUESTIONS (AUDIO)",
+    description:
+      "Un conjunto de preguntas grabadas de admisión/evaluación de salud, guardadas juntas como su propia colección.",
+    folderName: "Kaqchikel Casa Alitas",
+    files: intakeFiles,
+    searchPlaceholder: "buscar una pregunta…",
+    emptyMessage: "ninguna pregunta coincide con tu búsqueda.",
+  },
+  {
+    key: "kaqchikel-words",
+    title: "KAQCHIKEL WORDS & PHRASES (AUDIO)",
+    description:
+      "Palabras y frases sueltas en Kaqchikel, grabadas por hablantes de la comunidad, con su traducción al español (y al inglés cuando está disponible).",
+    folderName: "Kaqchikel Words",
+    files: kaqchikelWordFiles,
+    searchPlaceholder: "buscar una palabra o frase…",
+    emptyMessage: "ninguna palabra coincide con tu búsqueda.",
+    renderItem: (fn, folderName, i) => {
+      const { headword, spanish, english } = parseKaqchikelWord(fn);
+      return (
+        <div className="entry" key={i}>
+          <div className="entry-head">
+            <span className="headword">{headword}</span>
+          </div>
+          {(spanish || english) && (
+            <div className="definition">
+              {spanish}
+              {spanish && english ? " · " : ""}
+              {english}
+            </div>
+          )}
+          <audio
+            className="entry-audio"
+            controls
+            src={audioSrc(folderName, fn)}
+          >
+            Tu navegador no admite la reproducción de audio.
+          </audio>
+        </div>
+      );
+    },
+  },
+];
 
-  const filteredIntake = useMemo(() => {
-    const q = intakeQuery.trim().toLowerCase();
-    let list = intakeFiles.filter((fn) => {
-      if (!q) return true;
-      return fn.toLowerCase().includes(q);
+function AudioSignalIcon() {
+  return (
+    <svg
+      className="audio-icon"
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <rect x="1" y="7" width="2" height="6" fill="currentColor" />
+      <rect x="6" y="3" width="2" height="10" fill="currentColor" />
+      <rect x="11" y="5" width="2" height="8" fill="currentColor" />
+    </svg>
+  );
+}
+
+function AudioCollection({
+  title,
+  description,
+  folderName,
+  files,
+  searchPlaceholder,
+  emptyMessage,
+  renderItem,
+}) {
+  const [q, setQ] = useState("");
+
+  const filtered = useMemo(() => {
+    const query = q.trim().toLowerCase();
+    let list = files.filter((fn) => {
+      if (!query) return true;
+      return fn.toLowerCase().includes(query);
     });
     list.sort((a, b) => a.localeCompare(b, "es"));
     return list;
-  }, [intakeQuery]);
+  }, [q, files]);
+
+  return (
+    <details className="panel">
+      <summary>
+        <span className="panel-title">
+          <AudioSignalIcon /> {title}
+        </span>
+        <span className="panel-count">{files.length} files</span>
+      </summary>
+      <div className="panel-body">
+        <p className="section-note">{description}</p>
+
+        <div className="search-field">
+          <input
+            type="text"
+            placeholder={searchPlaceholder}
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
+
+        <div className="intake-list">
+          {filtered.length === 0 && (
+            <div className="empty-state">{emptyMessage}</div>
+          )}
+          {filtered.map((fn, i) =>
+            renderItem ? (
+              renderItem(fn, folderName, i)
+            ) : (
+              <div className="intake-item" key={i}>
+                <div className="intake-title">{spanishTitle(fn)}</div>
+                <audio
+                  className="entry-audio"
+                  controls
+                  src={audioSrc(folderName, fn)}
+                >
+                  Tu navegador no admite la reproducción de audio.
+                </audio>
+              </div>
+            )
+          )}
+        </div>
+      </div>
+    </details>
+  );
+}
+
+export default function Home() {
+  const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -180,7 +334,7 @@ export default function Home() {
   return (
     <div className="wrap">
       <header>
-        <div className="eyebrow">Community language archive</div>
+        <div className="eyebrow">// community language archive</div>
         <h1>
           Kaqchikel–Spanish Glossary
           <span className="es">
@@ -196,180 +350,163 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="controls">
-        <div className="search-field">
-          <input
-            type="text"
-            placeholder="search a word or definition…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
-        <div className="alpha-strip">
-          {ALPHABET.map((l) =>
-            activeLetters.includes(l) ? (
-              <a key={l} href={`#letter-${l}`}>
-                {l.toUpperCase()}
-              </a>
-            ) : (
-              <a key={l} className="disabled">
-                {l.toUpperCase()}
-              </a>
-            )
-          )}
-        </div>
-      </div>
-
-      <div>
-        {activeLetters.length === 0 && (
-          <div className="empty-state">no words match your search.</div>
-        )}
-        {activeLetters.map((l) => (
-          <div className="letter-group" id={`letter-${l}`} key={l}>
-            <div className="letter-marker">
-              <div className="big">{l.toUpperCase()}</div>
-              <div className="rule"></div>
+      <details className="panel">
+        <summary>
+          <span className="panel-title">GLOSSARY</span>
+          <span className="panel-count">{entries.length} words</span>
+        </summary>
+        <div className="panel-body">
+          <div className="controls">
+            <div className="search-field">
+              <input
+                type="text"
+                placeholder="search a word or definition…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
             </div>
-            {groups[l].map((e, i) => (
-              <div className="entry" key={i}>
-                <div className="entry-head">
-                  <span className="headword">{e.headword}</span>
+            <div className="alpha-strip">
+              {ALPHABET.map((l) =>
+                activeLetters.includes(l) ? (
+                  <a key={l} href={`#letter-${l}`}>
+                    {l.toUpperCase()}
+                  </a>
+                ) : (
+                  <a key={l} className="disabled">
+                    {l.toUpperCase()}
+                  </a>
+                )
+              )}
+            </div>
+          </div>
+
+          <div>
+            {activeLetters.length === 0 && (
+              <div className="empty-state">no words match your search.</div>
+            )}
+            {activeLetters.map((l) => (
+              <div className="letter-group" id={`letter-${l}`} key={l}>
+                <div className="letter-marker">
+                  <div className="big">{l.toUpperCase()}</div>
+                  <div className="rule"></div>
                 </div>
-                <div className="definition">{e.definition}</div>
-                {e.literal && (
-                  <div className="literal-note">{e.literal}</div>
-                )}
-                {e.audio && (
-                  <audio className="entry-audio" controls src={`/audio/${e.audio}`}>
-                    Your browser doesn't support audio playback.
-                  </audio>
-                )}
+                {groups[l].map((e, i) => (
+                  <div className="entry" key={i}>
+                    <div className="entry-head">
+                      <span className="headword">{e.headword}</span>
+                    </div>
+                    <div className="definition">{e.definition}</div>
+                    {e.literal && (
+                      <div className="literal-note">{e.literal}</div>
+                    )}
+                    {e.audio && (
+                      <audio className="entry-audio" controls src={`/audio/${e.audio}`}>
+                        Your browser doesn't support audio playback.
+                      </audio>
+                    )}
+                  </div>
+                ))}
               </div>
             ))}
           </div>
-        ))}
-      </div>
-
-      <section className="sentence-section">
-        <h2>Example Sentences</h2>
-        <p className="section-note">
-          Phrases are color-matched across Spanish, Kaqchikel, and English so
-          corresponding chunks of meaning line up. Colors follow the source
-          annotation.
-        </p>
-
-        <div className="sentence-card">
-          <div className="sentence-line">
-            <span className="lang-label">es</span>
-            <span className="hl yellow">Míreme</span>{" "}
-            <span className="hl green">a los ojos</span>{" "}
-            <span className="hl orange">y verá</span>{" "}
-            <span className="hl purple">que estoy diciendo</span>{" "}
-            <span className="hl blue">la verdad.</span>
-          </div>
-          <div className="sentence-line">
-            <span className="lang-label">kaq</span>
-            <span className="hl yellow">Ta-tzu'</span>{" "}
-            <span className="hl green">re nu-vech</span>{" "}
-            <span className="hl orange">y xta-tz'et</span>{" "}
-            <span
-              className="hl indigo"
-              title="Uncertain match — see note below"
-            >
-              chi
-            </span>{" "}
-            <span className="hl blue">kitzij ri</span>{" "}
-            <span className="hl purple">nin-bij.</span>
-          </div>
-          <div className="sentence-line">
-            <span className="lang-label">en</span>
-            <span className="hl yellow">Look me</span>{" "}
-            <span className="hl green">in the eyes</span>{" "}
-            <span className="hl orange">and you will see</span>{" "}
-            <span className="hl purple">that I'm telling</span>{" "}
-            <span className="hl blue">the truth.</span>
-          </div>
-          <div className="sentence-meta">
-            <div className="dict-ref">
-              <span className="lang-label">headword</span> mirar —{" "}
-              <em>-tzu' (vt1)</em>
-            </div>
-            <div className="uncertain-note">
-              Note: I think "chi" actually links to "that" for "nin-bij."
-            </div>
-          </div>
-
-          <div className="breakdown">
-            <div className="breakdown-title">Direct translations</div>
-            <div className="breakdown-row">
-              <span className="swatch yellow"></span>Míreme / Ta-tzu' / Look
-              me
-            </div>
-            <div className="breakdown-row">
-              <span className="swatch green"></span>a los ojos / re nu-vech /
-              in the eyes
-            </div>
-            <div className="breakdown-row">
-              <span className="swatch orange"></span>y verá / y xta-tz'et /
-              and you will see
-            </div>
-            <div className="breakdown-row">
-              <span className="swatch purple"></span>que estoy diciendo /
-              nin-bij / that I'm telling
-            </div>
-            <div className="breakdown-row">
-              <span className="swatch blue"></span>la verdad / kitzij ri / the
-              truth
-            </div>
-            <div className="breakdown-row">
-              <span className="swatch indigo"></span>chi — unmatched (see
-              note above)
-            </div>
-          </div>
         </div>
+      </details>
 
-        <div className="citation">
-          Cited from: <em>Diccionario Español–Cakchiquel–Inglés</em>. Robert
-          W. Blair, John S. Robertson, Larry Richman, Greg Sansom, Julio
-          Salazar, Juan Yool, Alejandro Choc. Brigham Young University,
-          Provo, Utah, U.S.A. — Language and Intercultural Research Center,
-          New World Languages Research Division.
-        </div>
-      </section>
+      <details className="panel">
+        <summary>
+          <span className="panel-title">EXAMPLE SENTENCES</span>
+          <span className="panel-count">1 set</span>
+        </summary>
+        <div className="panel-body">
+          <p className="section-note">
+            Phrases are color-matched across Spanish, Kaqchikel, and English so
+            corresponding chunks of meaning line up. Colors follow the source
+            annotation.
+          </p>
 
-      <section className="sentence-section">
-        <h2>Casa Alitas — Preguntas de Admisión</h2>
-        <p className="section-note">
-          Un conjunto de preguntas grabadas de admisión/evaluación de salud,
-          guardadas juntas como su propia colección.
-          {" "}{intakeFiles.length} grabaciones.
-        </p>
-
-        <div className="search-field intake-search">
-          <input
-            type="text"
-            placeholder="buscar una pregunta…"
-            value={intakeQuery}
-            onChange={(e) => setIntakeQuery(e.target.value)}
-          />
-        </div>
-
-        <div className="intake-list">
-          {filteredIntake.length === 0 && (
-            <div className="empty-state">ninguna pregunta coincide con tu búsqueda.</div>
-          )}
-          {filteredIntake.map((fn, i) => (
-            <div className="intake-item" key={i}>
-              <div className="intake-title">
-                {spanishTitle(fn)}
+          <div className="sentence-card">
+            <div className="sentence-line">
+              <span className="lang-label">es</span>
+              <span className="hl yellow">Míreme</span>{" "}
+              <span className="hl green">a los ojos</span>{" "}
+              <span className="hl orange">y verá</span>{" "}
+              <span className="hl purple">que estoy diciendo</span>{" "}
+              <span className="hl blue">la verdad.</span>
+            </div>
+            <div className="sentence-line">
+              <span className="lang-label">kaq</span>
+              <span className="hl yellow">Ta-tzu'</span>{" "}
+              <span className="hl green">re nu-vech</span>{" "}
+              <span className="hl orange">y xta-tz'et</span>{" "}
+              <span
+                className="hl indigo"
+                title="Uncertain match — see note below"
+              >
+                chi
+              </span>{" "}
+              <span className="hl blue">kitzij ri</span>{" "}
+              <span className="hl purple">nin-bij.</span>
+            </div>
+            <div className="sentence-line">
+              <span className="lang-label">en</span>
+              <span className="hl yellow">Look me</span>{" "}
+              <span className="hl green">in the eyes</span>{" "}
+              <span className="hl orange">and you will see</span>{" "}
+              <span className="hl purple">that I'm telling</span>{" "}
+              <span className="hl blue">the truth.</span>
+            </div>
+            <div className="sentence-meta">
+              <div className="dict-ref">
+                <span className="lang-label">headword</span> mirar —{" "}
+                <em>-tzu' (vt1)</em>
               </div>
-              <audio className="entry-audio" controls src={audioSrc(fn)}>
-                Tu navegador no admite la reproducción de audio.
-              </audio>
+              <div className="uncertain-note">
+                Note: I think "chi" actually links to "that" for "nin-bij."
+              </div>
             </div>
-          ))}
+
+            <div className="breakdown">
+              <div className="breakdown-title">Direct translations</div>
+              <div className="breakdown-row">
+                <span className="swatch yellow"></span>Míreme / Ta-tzu' / Look
+                me
+              </div>
+              <div className="breakdown-row">
+                <span className="swatch green"></span>a los ojos / re nu-vech /
+                in the eyes
+              </div>
+              <div className="breakdown-row">
+                <span className="swatch orange"></span>y verá / y xta-tz'et /
+                and you will see
+              </div>
+              <div className="breakdown-row">
+                <span className="swatch purple"></span>que estoy diciendo /
+                nin-bij / that I'm telling
+              </div>
+              <div className="breakdown-row">
+                <span className="swatch blue"></span>la verdad / kitzij ri / the
+                truth
+              </div>
+              <div className="breakdown-row">
+                <span className="swatch indigo"></span>chi — unmatched (see
+                note above)
+              </div>
+            </div>
+          </div>
+
+          <div className="citation">
+            Cited from: <em>Diccionario Español–Cakchiquel–Inglés</em>. Robert
+            W. Blair, John S. Robertson, Larry Richman, Greg Sansom, Julio
+            Salazar, Juan Yool, Alejandro Choc. Brigham Young University,
+            Provo, Utah, U.S.A. — Language and Intercultural Research Center,
+            New World Languages Research Division.
+          </div>
         </div>
-      </section>
+      </details>
+
+      {audioCollections.map((collection) => (
+        <AudioCollection key={collection.key} {...collection} />
+      ))}
 
       <footer>A living document — entries are added as more field data is transcribed.</footer>
     </div>
