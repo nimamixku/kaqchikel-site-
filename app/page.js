@@ -175,13 +175,18 @@ function stripDiacritics(s) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-// Loose normalization for matching only (never used for display): lowercase,
-// strip accents, drop punctuation that varies source-to-source, collapse
-// whitespace. Keeps internal apostrophes since Kaqchikel uses them for
-// glottal stops (k'a, ch'ab'äl, etc.) — those are meaningful, not punctuation.
+// Loose normalization for MATCHING ONLY — never used for display. Kaqchikel
+// spelling leans on marks that are easy to skip on a normal keyboard: the
+// diaeresis (ä, ë, ï, ö, ü — a distinct vowel, not just stress) and the
+// apostrophe (marks a glottal stop — k'a and ka are different words). Those
+// marks stay meaningful in every result actually shown to someone, but for
+// deciding whether something counts as a hit, this search is deliberately
+// forgiving: someone typing "ka" should still find "k'a". Worst case, a
+// forgiving match surfaces a couple of extra near-hits; a strict one just
+// finds nothing when someone leaves out a mark they didn't know was there.
 function normalizeForMatch(s) {
   return stripDiacritics(String(s || "").toLowerCase())
-    .replace(/[¿?¡!.,;:"“”]/g, "")
+    .replace(/[¿?¡!.,;:"“”'’‘`´]/g, "")
     .trim()
     .replace(/\s+/g, " ");
 }
