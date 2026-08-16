@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import kaqchikelWordFiles from "./kaqchikelWordFiles.json";
 
 // Entries transcribed from source documents. Add new entries to this array.
@@ -232,11 +232,11 @@ const CHILDREN_SONGS = [
     key: "itsy-bitsy-spider",
     title: "The Itsy Bitsy Spider — Ri Itzi Bitzi Om",
     description:
-      "Written out and illustrated by hand, then recorded in Kaqchikel and in Spanish/English.",
+      "Written out and illustrated by hand, then recorded in Kaqchikel and in Spanish.",
     handwrittenPhoto: {
       src: "/images/itsy-bitsy-spider/handwritten-original.jpg",
       alt: "The original handwritten page, in Kaqchikel",
-      caption: "the original, handwritten",
+      caption: "handwritten, MJML",
     },
     pages: [
       {
@@ -266,8 +266,8 @@ const CHILDREN_SONGS = [
         src: "/audio/itsy-bitsy-spider/kaqchikel.m4a",
       },
       {
-        label: "Español / English — Itzi bitsy araña",
-        src: "/audio/itsy-bitsy-spider/spanish-english.m4a",
+        label: "Español — Itzi bitsy araña",
+        src: "/audio/itsy-bitsy-spider/spanish.m4a",
       },
     ],
   },
@@ -312,44 +312,160 @@ function SongPages({ pages }) {
   );
 }
 
+function formatSongTime(s) {
+  if (!Number.isFinite(s) || s < 0) return "0:00";
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2, "0")}`;
+}
+
+// A small custom "video player"-style control: the audio drives which
+// illustrated page is showing, splitting the track evenly across the
+// pages. Switching language tracks resets playback to the start.
+function SongPlayer({ tracks, pages }) {
+  const audioRef = useRef(null);
+  const [trackIndex, setTrackIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const total = pages.length;
+  const pageIndex =
+    duration > 0
+      ? Math.min(total - 1, Math.floor((currentTime / duration) * total))
+      : 0;
+
+  function selectTrack(i) {
+    setTrackIndex(i);
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+  }
+
+  function togglePlay() {
+    const el = audioRef.current;
+    if (!el) return;
+    if (el.paused) {
+      el.play();
+      setIsPlaying(true);
+    } else {
+      el.pause();
+      setIsPlaying(false);
+    }
+  }
+
+  function handleScrub(e) {
+    const el = audioRef.current;
+    const t = Number(e.target.value);
+    if (el) el.currentTime = t;
+    setCurrentTime(t);
+  }
+
+  return (
+    <div className="song-player">
+      <div className="song-player-frame">
+        <img
+          key={pageIndex}
+          src={pages[pageIndex].src}
+          alt={pages[pageIndex].alt}
+          className="song-player-img"
+        />
+      </div>
+
+      <audio
+        ref={audioRef}
+        src={tracks[trackIndex].src}
+        onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+        onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
+        onEnded={() => setIsPlaying(false)}
+        className="song-player-native-audio"
+      >
+        Tu navegador no admite la reproducción de audio.
+      </audio>
+
+      <div className="song-player-controls">
+        <button
+          type="button"
+          className="song-player-play"
+          onClick={togglePlay}
+          aria-label={isPlaying ? "Pause" : "Play"}
+        >
+          {isPlaying ? "❚❚" : "►"}
+        </button>
+        <span className="song-player-time">{formatSongTime(currentTime)}</span>
+        <input
+          type="range"
+          className="song-player-scrub"
+          min={0}
+          max={duration || 0}
+          step={0.05}
+          value={Math.min(currentTime, duration || 0)}
+          onChange={handleScrub}
+          aria-label="Seek"
+        />
+        <span className="song-player-time">{formatSongTime(duration)}</span>
+      </div>
+
+      <div className="song-player-tracks">
+        {tracks.map((t, i) => (
+          <button
+            key={i}
+            type="button"
+            className={
+              "song-player-track" + (i === trackIndex ? " active" : "")
+            }
+            onClick={() => selectTrack(i)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function SongEntry({ song }) {
-  const hasVisuals = song.handwrittenPhoto || (song.pages && song.pages.length > 0);
+  const hasPages = song.pages && song.pages.length > 0;
+  const hasTracks = song.audioTracks && song.audioTracks.length > 0;
 
   return (
     <div className="song-entry">
       <div className="song-title">{song.title}</div>
       {song.description && <p className="section-note">{song.description}</p>}
 
-      {hasVisuals && (
-        <div className="songbook">
-          {song.handwrittenPhoto && (
-            <div className="songbook-original">
-              <img
-                src={song.handwrittenPhoto.src}
-                alt={song.handwrittenPhoto.alt}
-                className="songbook-original-img"
-              />
-              <div className="songbook-caption">
-                {song.handwrittenPhoto.caption}
-              </div>
+      <div className="songbook">
+        {song.handwrittenPhoto && (
+          <div className="songbook-original">
+            <img
+              src={song.handwrittenPhoto.src}
+              alt={song.handwrittenPhoto.alt}
+              className="songbook-original-img"
+            />
+            <div className="songbook-caption">
+              {song.handwrittenPhoto.caption}
             </div>
-          )}
-          {song.pages && song.pages.length > 0 && (
-            <SongPages pages={song.pages} />
-          )}
+          </div>
+        )}
+
+        {hasPages && hasTracks ? (
+          <SongPlayer tracks={song.audioTracks} pages={song.pages} />
+        ) : (
+          hasPages && <SongPages pages={song.pages} />
+        )}
+      </div>
+
+      {!(hasPages && hasTracks) && hasTracks && (
+        <div className="songbook-audio">
+          {song.audioTracks.map((track, i) => (
+            <div className="songbook-audio-item" key={i}>
+              <div className="songbook-audio-label">{track.label}</div>
+              <audio className="entry-audio" controls src={track.src}>
+                Tu navegador no admite la reproducción de audio.
+              </audio>
+            </div>
+          ))}
         </div>
       )}
-
-      <div className="songbook-audio">
-        {song.audioTracks.map((track, i) => (
-          <div className="songbook-audio-item" key={i}>
-            <div className="songbook-audio-label">{track.label}</div>
-            <audio className="entry-audio" controls src={track.src}>
-              Tu navegador no admite la reproducción de audio.
-            </audio>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

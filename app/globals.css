@@ -345,16 +345,21 @@ header p.desc{
 }
 .songbook{
   display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:28px;
+  flex-direction:row;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  justify-content:center;
+  gap:24px;
   margin:18px 0 24px;
 }
 .songbook-original{
   text-align:center;
+  flex:0 0 auto;
+  width:220px;
+  max-width:100%;
 }
 .songbook-original-img{
-  max-width:280px;
+  max-width:220px;
   width:100%;
   border:1px solid var(--line);
   display:block;
@@ -370,15 +375,101 @@ header p.desc{
   display:flex;
   flex-direction:column;
   align-items:center;
-  width:100%;
+  flex:0 0 auto;
+  width:300px;
+  max-width:100%;
 }
 .songbook-page-frame{
   border:1px solid var(--line);
   padding:8px;
   background:#FFFFFF;
   width:100%;
-  max-width:340px;
+  max-width:300px;
   overflow:hidden;
+}
+.song-player{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  flex:0 0 auto;
+  width:300px;
+  max-width:100%;
+}
+.song-player-frame{
+  border:1px solid var(--line);
+  padding:8px;
+  background:#FFFFFF;
+  width:100%;
+  max-width:300px;
+  overflow:hidden;
+}
+.song-player-img{
+  width:100%;
+  display:block;
+  animation:songbook-fade 0.35s ease;
+}
+.song-player-native-audio{
+  display:none;
+}
+.song-player-controls{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:12px;
+  width:100%;
+}
+.song-player-play{
+  width:32px;
+  height:32px;
+  flex:none;
+  border:1px solid var(--line);
+  background:#FFFFFF;
+  color:var(--ink);
+  font-size:12px;
+  line-height:1;
+  cursor:pointer;
+  font-family:'IBM Plex Mono',monospace;
+}
+.song-player-play:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+.song-player-time{
+  font-size:11px;
+  color:var(--ink-faint);
+  flex:none;
+  min-width:32px;
+}
+.song-player-time:last-child{
+  text-align:right;
+}
+.song-player-scrub{
+  flex:1;
+  accent-color:var(--accent);
+}
+.song-player-tracks{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin-top:14px;
+}
+.song-player-track{
+  border:1px solid var(--line);
+  background:#FFFFFF;
+  color:var(--ink-soft);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  padding:6px 10px;
+  cursor:pointer;
+}
+.song-player-track:hover{
+  border-color:var(--accent);
+}
+.song-player-track.active{
+  border-color:var(--accent);
+  color:var(--accent);
+  font-weight:600;
 }
 .songbook-page-img{
   width:100%;
