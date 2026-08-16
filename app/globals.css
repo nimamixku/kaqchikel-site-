@@ -219,7 +219,6 @@ header p.desc{
   font-size:13px;
   color:var(--ink-soft);
   line-height:1.6;
-  max-width:60ch;
   margin:14px 0 18px;
 }
 
