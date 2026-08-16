@@ -179,7 +179,7 @@ const audioCollections = [
     key: "casa-alitas",
     title: "BORDER INTAKE QUESTIONS (AUDIO)",
     description:
-      "Un conjunto de preguntas grabadas de admisión/evaluación de salud, guardadas juntas como su propia colección.",
+      "Intake questions translated and recorded for Casa Alitas, a welcome center and shelter for vulnerable migrant families and legal asylum seekers released from federal border custody, providing them with food, clothing, temporary lodging, and travel coordination.",
     folderName: "Kaqchikel Casa Alitas",
     files: intakeFiles,
     searchPlaceholder: "buscar una pregunta…",
@@ -188,8 +188,6 @@ const audioCollections = [
   {
     key: "kaqchikel-words",
     title: "KAQCHIKEL WORDS & PHRASES (AUDIO)",
-    description:
-      "Palabras y frases sueltas en Kaqchikel, grabadas por hablantes de la comunidad, con su traducción al español (y al inglés cuando está disponible).",
     folderName: "Kaqchikel Words",
     files: kaqchikelWordFiles,
     searchPlaceholder: "buscar una palabra o frase…",
@@ -567,7 +565,7 @@ function AudioCollection({
         <span className="panel-count">{files.length} files</span>
       </summary>
       <div className="panel-body">
-        <p className="section-note">{description}</p>
+        {description && <p className="section-note">{description}</p>}
 
         <div className="search-field">
           <input
