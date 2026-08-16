@@ -501,6 +501,10 @@ export default function Home() {
             Provo, Utah, U.S.A. — Language and Intercultural Research Center,
             New World Languages Research Division.
           </div>
+          <div className="citation">
+            Color-coding and Kaqchikel–Spanish–English alignment by Abra
+            Kinkopf.
+          </div>
         </div>
       </details>
 
@@ -508,7 +512,13 @@ export default function Home() {
         <AudioCollection key={collection.key} {...collection} />
       ))}
 
-      <footer>A living document — entries are added as more field data is transcribed.</footer>
+      <footer>
+        A living document — entries are added as more field data is transcribed.
+        <div className="footer-credit">
+          Data collection: Abra Kinkopf. Speakers: MHML &amp; MJML. Written
+          translations: Abra, MHML, and MJML.
+        </div>
+      </footer>
     </div>
   );
 }
