@@ -231,8 +231,6 @@ const CHILDREN_SONGS = [
   {
     key: "itsy-bitsy-spider",
     title: "The Itsy Bitsy Spider — Ri Itzi Bitzi Om",
-    description:
-      "Written out and illustrated by hand, then recorded in Kaqchikel and in Spanish.",
     handwrittenPhoto: {
       src: "/images/itsy-bitsy-spider/handwritten-original.jpg",
       alt: "The original handwritten page, in Kaqchikel",
