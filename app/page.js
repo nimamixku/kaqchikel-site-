@@ -364,12 +364,18 @@ function SongPlayer({ tracks, pages }) {
   return (
     <div className="song-player">
       <div className="song-player-frame">
-        <img
-          key={pageIndex}
-          src={pages[pageIndex].src}
-          alt={pages[pageIndex].alt}
-          className="song-player-img"
-        />
+        <div className="song-player-frame-inner">
+          {pages.map((p, i) => (
+            <img
+              key={i}
+              src={p.src}
+              alt={p.alt}
+              className={
+                "song-player-img" + (i === pageIndex ? " active" : "")
+              }
+            />
+          ))}
+        </div>
       </div>
 
       <audio
