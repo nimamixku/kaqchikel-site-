@@ -262,6 +262,9 @@ const CHILDREN_SONGS = [
       {
         label: "Kaqchikel — Bitzi bitzi Om",
         src: "/audio/itsy-bitsy-spider/kaqchikel.m4a",
+        // Hand-timed against the actual recording: page flips at 1s, 3s,
+        // 6s, and 12s (5 pages total, page 1 shown from 0s to 1s).
+        pageBreaks: [1, 3, 6, 12],
       },
       {
         label: "Español — Itzi bitsy araña",
@@ -317,9 +320,26 @@ function formatSongTime(s) {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
+// Given the current playback time, figures out which page should be
+// showing. If the track has hand-timed `pageBreaks` (exact seconds where
+// each new page starts), those are used for a precise sync. Otherwise it
+// falls back to splitting the track evenly across the pages.
+function pageIndexForTime(time, duration, total, pageBreaks) {
+  if (pageBreaks && pageBreaks.length > 0) {
+    let idx = 0;
+    for (let i = 0; i < pageBreaks.length; i++) {
+      if (time >= pageBreaks[i]) idx = i + 1;
+    }
+    return Math.min(total - 1, idx);
+  }
+  return duration > 0
+    ? Math.min(total - 1, Math.floor((time / duration) * total))
+    : 0;
+}
+
 // A small custom "video player"-style control: the audio drives which
-// illustrated page is showing, splitting the track evenly across the
-// pages. Switching language tracks resets playback to the start.
+// illustrated page is showing. Switching language tracks resets playback
+// to the start.
 function SongPlayer({ tracks, pages }) {
   const audioRef = useRef(null);
   const [trackIndex, setTrackIndex] = useState(0);
@@ -328,10 +348,12 @@ function SongPlayer({ tracks, pages }) {
   const [duration, setDuration] = useState(0);
 
   const total = pages.length;
-  const pageIndex =
-    duration > 0
-      ? Math.min(total - 1, Math.floor((currentTime / duration) * total))
-      : 0;
+  const pageIndex = pageIndexForTime(
+    currentTime,
+    duration,
+    total,
+    tracks[trackIndex].pageBreaks
+  );
 
   function selectTrack(i) {
     setTrackIndex(i);
