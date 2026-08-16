@@ -221,6 +221,162 @@ const audioCollections = [
   },
 ];
 
+// Children's songs collection. To add another song later:
+// 1. Drop its audio file(s) in public/audio/<song-key>/
+// 2. If it has illustrated/handwritten pages, drop images in
+//    public/images/<song-key>/
+// 3. Add one entry below — `pages` and `handwrittenPhoto` are both
+//    optional, so an audio-only song just needs `audioTracks`.
+const CHILDREN_SONGS = [
+  {
+    key: "itsy-bitsy-spider",
+    title: "The Itsy Bitsy Spider — Ri Itzi Bitzi Om",
+    description:
+      "Written out and illustrated by hand, then recorded in Kaqchikel and in Spanish/English.",
+    handwrittenPhoto: {
+      src: "/images/itsy-bitsy-spider/handwritten-original.jpg",
+      alt: "The original handwritten page, in Kaqchikel",
+      caption: "the original, handwritten",
+    },
+    pages: [
+      {
+        src: "/images/itsy-bitsy-spider/page-1.png",
+        alt: "Title page: The Itsy Bitsy Spider / La Itsy Bitsy Araña / Ri Itzi Bitzi Om",
+      },
+      {
+        src: "/images/itsy-bitsy-spider/page-2.png",
+        alt: "crawled up the water spout / subìo la telaraña / xjote'el pa rukem",
+      },
+      {
+        src: "/images/itsy-bitsy-spider/page-3.png",
+        alt: "down came the rain and washed the spider out / llego la lluvia y se la llevo / xpe k'a ri jo'b' i xu qirirej",
+      },
+      {
+        src: "/images/itsy-bitsy-spider/page-4.png",
+        alt: "out came the sun and dried up all the rain / salio el sol y luego lo seco / xelpe ri q'ij i xuchaqirisaj",
+      },
+      {
+        src: "/images/itsy-bitsy-spider/page-5.png",
+        alt: "and the itsy bitsy spider climbed up the spout again / y la itsy bitsy araña de nuevo se subio / itzi bitzi om xjote' chik el jun b'ey",
+      },
+    ],
+    audioTracks: [
+      {
+        label: "Kaqchikel — Bitzi bitzi Om",
+        src: "/audio/itsy-bitsy-spider/kaqchikel.m4a",
+      },
+      {
+        label: "Español / English — Itzi bitsy araña",
+        src: "/audio/itsy-bitsy-spider/spanish-english.m4a",
+      },
+    ],
+  },
+];
+
+function SongPages({ pages }) {
+  const [page, setPage] = useState(0);
+  const total = pages.length;
+
+  return (
+    <div className="songbook-pages">
+      <div className="songbook-page-frame">
+        <img
+          key={page}
+          src={pages[page].src}
+          alt={pages[page].alt}
+          className="songbook-page-img"
+        />
+      </div>
+      <div className="songbook-controls">
+        <button
+          type="button"
+          onClick={() => setPage((p) => Math.max(0, p - 1))}
+          disabled={page === 0}
+          aria-label="Previous page"
+        >
+          ‹
+        </button>
+        <span className="songbook-page-count">
+          {page + 1} / {total}
+        </span>
+        <button
+          type="button"
+          onClick={() => setPage((p) => Math.min(total - 1, p + 1))}
+          disabled={page === total - 1}
+          aria-label="Next page"
+        >
+          ›
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SongEntry({ song }) {
+  const hasVisuals = song.handwrittenPhoto || (song.pages && song.pages.length > 0);
+
+  return (
+    <div className="song-entry">
+      <div className="song-title">{song.title}</div>
+      {song.description && <p className="section-note">{song.description}</p>}
+
+      {hasVisuals && (
+        <div className="songbook">
+          {song.handwrittenPhoto && (
+            <div className="songbook-original">
+              <img
+                src={song.handwrittenPhoto.src}
+                alt={song.handwrittenPhoto.alt}
+                className="songbook-original-img"
+              />
+              <div className="songbook-caption">
+                {song.handwrittenPhoto.caption}
+              </div>
+            </div>
+          )}
+          {song.pages && song.pages.length > 0 && (
+            <SongPages pages={song.pages} />
+          )}
+        </div>
+      )}
+
+      <div className="songbook-audio">
+        {song.audioTracks.map((track, i) => (
+          <div className="songbook-audio-item" key={i}>
+            <div className="songbook-audio-label">{track.label}</div>
+            <audio className="entry-audio" controls src={track.src}>
+              Tu navegador no admite la reproducción de audio.
+            </audio>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ChildrenSongsSection() {
+  return (
+    <details className="panel">
+      <summary>
+        <span className="panel-title">
+          <AudioSignalIcon /> CHILDREN'S SONGS
+        </span>
+        <span className="panel-count">
+          {CHILDREN_SONGS.length} song{CHILDREN_SONGS.length === 1 ? "" : "s"}
+        </span>
+      </summary>
+      <div className="panel-body">
+        {CHILDREN_SONGS.map((song, i) => (
+          <div key={song.key}>
+            <SongEntry song={song} />
+            {i < CHILDREN_SONGS.length - 1 && <div className="song-divider" />}
+          </div>
+        ))}
+      </div>
+    </details>
+  );
+}
+
 function AudioSignalIcon() {
   return (
     <svg
@@ -511,6 +667,8 @@ export default function Home() {
       {audioCollections.map((collection) => (
         <AudioCollection key={collection.key} {...collection} />
       ))}
+
+      <ChildrenSongsSection />
 
       <footer>
         A living document — entries are added as more field data is transcribed.

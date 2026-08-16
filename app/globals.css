@@ -328,6 +328,113 @@ header p.desc{
   margin-bottom:6px;
 }
 
+.song-entry{
+  padding:6px 0;
+}
+.song-title{
+  font-family:'IBM Plex Mono',monospace;
+  font-weight:600;
+  font-size:15px;
+  color:var(--ink);
+  margin-top:4px;
+}
+.song-divider{
+  height:1px;
+  background:var(--line);
+  margin:28px 0;
+}
+.songbook{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:28px;
+  margin:18px 0 24px;
+}
+.songbook-original{
+  text-align:center;
+}
+.songbook-original-img{
+  max-width:280px;
+  width:100%;
+  border:1px solid var(--line);
+  display:block;
+  margin:0 auto;
+}
+.songbook-caption{
+  margin-top:8px;
+  font-size:12px;
+  font-style:italic;
+  color:var(--ink-faint);
+}
+.songbook-pages{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  width:100%;
+}
+.songbook-page-frame{
+  border:1px solid var(--line);
+  padding:8px;
+  background:#FFFFFF;
+  width:100%;
+  max-width:340px;
+  overflow:hidden;
+}
+.songbook-page-img{
+  width:100%;
+  display:block;
+  animation:songbook-fade 0.35s ease;
+}
+@keyframes songbook-fade{
+  from{ opacity:0; transform:translateY(4px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+.songbook-controls{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin-top:12px;
+}
+.songbook-controls button{
+  width:32px;
+  height:32px;
+  border:1px solid var(--line);
+  background:#FFFFFF;
+  color:var(--ink);
+  font-size:16px;
+  line-height:1;
+  cursor:pointer;
+  font-family:'IBM Plex Mono',monospace;
+}
+.songbook-controls button:hover:not(:disabled){
+  border-color:var(--accent);
+  color:var(--accent);
+}
+.songbook-controls button:disabled{
+  opacity:0.3;
+  cursor:default;
+}
+.songbook-page-count{
+  font-size:12.5px;
+  color:var(--ink-faint);
+  min-width:48px;
+  text-align:center;
+}
+.songbook-audio{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.songbook-audio-item{
+  padding:14px 0;
+  border-top:1px solid var(--line-soft);
+}
+.songbook-audio-label{
+  font-size:13.5px;
+  color:var(--ink);
+  margin-bottom:8px;
+}
+
 footer{
   margin-top:30px;
   padding-top:16px;
