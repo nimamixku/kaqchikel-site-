@@ -860,9 +860,12 @@ export default function Home() {
         </div>
       </header>
 
-      <TranslateBox />
-
-      <LearningLog />
+      <div className="top-panels-row">
+        <TranslateBox />
+        <div className="learning-log-frame">
+          <LearningLog />
+        </div>
+      </div>
 
       <details className="panel">
         <summary>

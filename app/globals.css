@@ -222,6 +222,36 @@ header p.desc{
   margin:14px 0 18px;
 }
 
+/* TRANSLATE and the Learning Log now sit side by side up top, so it
+   reads as "the real tool" next to "the experiment," rather than one
+   stacked under the other. Stacks back to full-width on narrow screens. */
+.top-panels-row{
+  display:flex;
+  gap:18px;
+  align-items:flex-start;
+  margin-top:18px;
+}
+.top-panels-row > *{
+  flex:1 1 0;
+  min-width:0;
+}
+.top-panels-row .panel{
+  margin-top:0;
+}
+@media (max-width:640px){
+  .top-panels-row{
+    flex-direction:column;
+  }
+}
+
+/* A solid black frame around the Learning Log — on top of its own
+   dashed border — so it visually reads as its own separate, boxed-off
+   experiment sitting next to the real TRANSLATE box. */
+.learning-log-frame{
+  background:#000;
+  padding:12px;
+}
+
 .translate-box{
   border:1px solid var(--line);
 }
