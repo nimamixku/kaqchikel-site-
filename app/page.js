@@ -1,122 +1,13 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import kaqchikelWordFiles from "./kaqchikelWordFiles.json";
-
-// Entries transcribed from source documents. Add new entries to this array.
-const entries = [
-  { headword: "ruchi' jay", definition: "puerta (boca de la casa)", literal: "literally: ruchi' (boca) + jay (casa)" },
-  { headword: "ruchi'", definition: "boca (entrada del cuerpo)", literal: "" },
-  { headword: "Yatin watinisaj", definition: "te vas a bañar (you are going to take a bath)", literal: "" },
-  { headword: "Pach'un", definition: "trenza (braid)", literal: "" },
-  { headword: "Taya' pa ruwi ti chat'al", definition: "ponlo encima de la mesa (put it on the table)", literal: "" },
-  { headword: "Joq'atin", definition: "nos vamos a bañar", literal: "source has an unclosed parenthesis here — verify against original" },
-  { headword: "Utz nutztät", definition: "le gusta", literal: "" },
-  { headword: "Chitin ko'ol", definition: "pequeño", literal: "" },
-  { headword: "Tawelesaj", definition: "quítate", literal: "" },
-  { headword: "Nasipaj jun bichin", definition: "regálame uno", literal: "" },
-  { headword: "Xupuy", definition: "globo", literal: "" },
-  { headword: "Ichanaj", definition: "pulsera", literal: "" },
-  { headword: "Cha chal", definition: "collar", literal: "" },
-  { headword: "Kab'", definition: "dulce", literal: "" },
-  { headword: "Ka'etzan rikin ri k'oy", definition: "juega con el mono", literal: "" },
-  { headword: "Xiqolaj, xaqolaj yan", definition: "ya comí / ya comiste", literal: "" },
-  { headword: "Tatz'apij ri ruchi' jay", definition: "cierra la puerta", literal: "" },
-  { headword: "Ta Jaqa' ri ruchi' jay", definition: "abre la puerta", literal: "" },
-  { headword: "Pawiaj", definition: "sombrero", literal: "" },
-  { headword: "Takusaj ri Apawi", definition: "pon el sombrero", literal: "" },
-  { headword: "Taqojoma ri axul", definition: "toca la flauta", literal: "" },
-  { headword: "Achike niqaxon chawe", definition: "qué te duele?", literal: "" },
-  { headword: "Niqaxon ri axikin?", definition: "te duele el oído?", literal: "" },
-  { headword: "Kaxajon", definition: "baila!", literal: "" },
-  { headword: "Niqaxajon", definition: "bailemos", literal: "" },
-  { headword: "Amanjani niqil jun jay", definition: "todavía no hemos encontrado casa", literal: "" },
-  { headword: "Mani yaxutu'n", definition: "no hemos encontrado?", literal: "" },
-  { headword: "Alas", definition: "muñeco", literal: "" },
-  { headword: "Niqakanoj", definition: "estamos buscando", literal: "" },
-  { headword: "Xiyakatuj", definition: "se despertó", literal: "" },
-  { headword: "tib'a ok", definition: "poquito", literal: "" },
-  { headword: "k'ari", definition: "después, luego", literal: "" },
-  { headword: "ya kikot?", definition: "estás contenta?", literal: "" },
-  { headword: "quch'ayan chik?", definition: "hasta luego", literal: "" },
-  { headword: "majun nu'bän", definition: "por nada, de nada", literal: "" },
-  { headword: "taq'aj", definition: "costa / plano", literal: "" },
-  { headword: "tayape ri aq'a chwe", definition: "dame su mano", literal: "" },
-  { headword: "achike nabän ri teqaq'ij", definition: "qué vas a hacer esta tarde?", literal: "" },
-  { headword: "q'utun", definition: "comida", literal: "" },
-  { headword: "atz'an", definition: "sal", literal: "" },
-];
-
-const intakeFiles = [
-  "¿De que país es usted?.m4a",
-  "¿Está embarazada?.m4a",
-  "¿Este año recibió la vacuna contra la influenza?.m4a",
-  "¿Estuvo detenido por más de tres dias?.m4a",
-  "¿Estuvo detenido por más de una semana? .m4a",
-  "¿Ha comido algo en los últimos tres días?.m4a",
-  "¿Ha comido hoy?.m4a",
-  "¿Ha estado vomitando?.m4a",
-  "¿Ha pasado más de un mes desde que salió de su comunidad de origen?.m4a",
-  "¿Ha pasado más de una semana desde que salió de su comunidad de origen?.m4a",
-  "¿Ha tenido piojos durante de su viaje?.m4a",
-  "¿Ha tomado algo hoy?.m4a",
-  "¿Habla español?, ¿Yach´ön pa kaxlan ch´ab´äl?, Do you speak Spanish?.m4a",
-  "¿Le dieron algo de comer o tomar cuando estuvo detenido?.m4a",
-  "¿Le pica la cabeza?.m4a",
-  "¿Le pica la piel?.m4a",
-  "¿Lo toma para diabetes?.m4a",
-  "¿Lo toma para dolor de cabeza?.m4a",
-  "¿Lo toma para la presión?.m4a",
-  "¿Lo toma para problemas del estómago?.m4a",
-  "¿Puede enseñarmelo, por favor.m4a",
-  "¿Puede enseñarmelo, por favor?.m4a",
-  "¿Puede escribir en español?, ¿Awetaman yatz'ib'än pa kaxlan ch'ab'äl?, Can you write in Spanish?.m4a",
-  "¿Puede leer en español?.m4a",
-  "¿Puedeo ver sus oídos?.m4a",
-  "¿Puedo escuchar sus pulmones?.m4a",
-  "¿Puedo tomar su temperatura?.m4a",
-  "¿Puedo ver su garganta?.m4a",
-  "¿Qué idiomas habla usted?.m4a",
-  "¿Recibió atención medica por alguna enfermedad mientras estaba detenido?.m4a",
-  "¿Su diarrea es acuosa o floja?.m4a",
-  "¿Su diarrea tiene sangre?.m4a",
-  "¿Tiene alergia a algún medicamento?.m4a",
-  "¿Tiene algun problema de salud serio o que necesita ser tratado inmediatemente.m4a",
-  "¿Tiene alguna enfermedad crónica?.m4a",
-  "¿Tiene alguna herida o lesión?.m4a",
-  "¿Tiene diarrea más de tres veces al día?.m4a",
-  "¿Tiene diarrea?.m4a",
-  "¿Tiene dolor abdominal?.m4a",
-  "¿Tiene dolor de cabeza?.m4a",
-  "¿Tiene el medicamento con usted.m4a",
-  "¿Tiene el medicamento con usted?.m4a",
-  "¿Tiene fiebre o escalofríos?.m4a",
-  "¿Tiene mocos:líquidos?.m4a",
-  "¿Tiene náuseas?.m4a",
-  "¿Tiene sarpullido o cambios en la piel de sus pies?.m4a",
-  "¿Tiene sarpullido o cambios en la piel?.m4a",
-  "¿Tiene tos con flema?.m4a",
-  "¿Tiene tos?.m4a",
-  "¿Toma algún medicamento?.m4a",
-  "¿Tomó algún medicamento cuando estaba detenido?.m4a",
-  "¿podría ir conmigo?.m4a",
-  "Ahora se siente mejor?.m4a",
-  "Bienvenidos a los Estados Unidos.m4a",
-  "Cuando estuvo detenido.m4a",
-  "Le gustaría vacunarse?.m4a",
-  "Le podemos dar la vacuna contra la influenza hoy.m4a",
-  "Quisiera examinarle.m4a",
-  "Tuvo diarrea?.m4a",
-  "Tuvo dolor de cabeza?.m4a",
-  "Tuvo dolor de garganta?.m4a",
-  "Tuvo dolor de oído?.m4a",
-  "Tuvo fiebre?.m4a",
-  "Tuvo náuseas?.m4a",
-  "Tuvo tos?.m4a",
-  "Vomitó?.m4a",
-  "estamos felices de tenerle aqui.m4a",
-  "y la recomendamos.m4a",
-];
+import {
+  entries,
+  intakeFiles,
+  parseKaqchikelWord,
+  searchTranslations,
+} from "../lib/glossaryData";
 
 function audioSrc(folderName, filename) {
   return "/audio/" + encodeURIComponent(folderName) + "/" + encodeURIComponent(filename);
@@ -134,156 +25,6 @@ function spanishTitle(filename) {
 function normalizeLetter(word) {
   const c = word.trim().charAt(0).toLowerCase();
   return c.replace(/[^a-zñ']/i, "") || "#";
-}
-
-// Filenames for this collection follow "kaqchikel, español, english.m4a"
-// (some source files only have kaqchikel + español, or kaqchikel alone).
-// This parses that back apart for display without needing to rename
-// the original archive files.
-function parseKaqchikelWord(filename) {
-  const raw = filename.replace(/\.m4a$/i, "").trim();
-  let parts = raw
-    .split(",")
-    .map((p) => p.trim())
-    .filter(Boolean);
-
-  if (parts.length === 1) {
-    // a few source files use "!"/"?" instead of commas between languages
-    const fallback = raw
-      .split(/(?<=[!?])\s+(?=[A-ZÁÉÍÑÓÚÜ¿¡])/)
-      .map((p) => p.trim())
-      .filter(Boolean);
-    if (fallback.length > 1) parts = fallback;
-  }
-
-  const headword = parts[0] || raw;
-  let spanish = "";
-  let english = "";
-  if (parts.length === 2) {
-    spanish = parts[1];
-  } else if (parts.length >= 3) {
-    spanish = parts.slice(1, parts.length - 1).join(", ");
-    english = parts[parts.length - 1];
-  }
-  english = english.replace(/\.?m4a$/i, "").trim();
-  return { headword, spanish, english };
-}
-
-function stripDiacritics(s) {
-  return String(s || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-// Loose normalization for MATCHING ONLY — never used for display. Kaqchikel
-// spelling leans on marks that are easy to skip on a normal keyboard: the
-// diaeresis (ä, ë, ï, ö, ü — a distinct vowel, not just stress) and the
-// apostrophe (marks a glottal stop — k'a and ka are different words). Those
-// marks stay meaningful in every result actually shown to someone, but for
-// deciding whether something counts as a hit, this search is deliberately
-// forgiving: someone typing "ka" should still find "k'a". Worst case, a
-// forgiving match surfaces a couple of extra near-hits; a strict one just
-// finds nothing when someone leaves out a mark they didn't know was there.
-function normalizeForMatch(s) {
-  return stripDiacritics(String(s || "").toLowerCase())
-    .replace(/[¿?¡!.,;:"“”'’‘`´]/g, "")
-    .trim()
-    .replace(/\s+/g, " ");
-}
-
-// A glossary definition sometimes carries an inline English gloss in
-// parentheses, e.g. "te vas a bañar (you are going to take a bath)".
-function splitDefinition(definition) {
-  const m = /\(([^)]+)\)\s*$/.exec(definition || "");
-  if (!m) return { spanish: definition || "", english: "" };
-  return {
-    spanish: definition.slice(0, m.index).trim(),
-    english: m[1].trim(),
-  };
-}
-
-// Every place on this site where a Kaqchikel word/phrase/sentence has a
-// known Spanish and/or English translation already gets folded into one
-// searchable index. This is a lookup over real recorded/transcribed data —
-// not a trained model — so "TRANSLATE" only ever returns things that have
-// actually been collected.
-const TRANSLATION_INDEX = (() => {
-  const idx = [];
-
-  entries.forEach((e) => {
-    const { spanish, english } = splitDefinition(e.definition);
-    idx.push({ kaqchikel: e.headword, spanish, english, source: "glossary" });
-  });
-
-  kaqchikelWordFiles.forEach((fn) => {
-    const { headword, spanish, english } = parseKaqchikelWord(fn);
-    idx.push({
-      kaqchikel: headword,
-      spanish,
-      english,
-      source: "words",
-      audio: { folderName: "Kaqchikel Words", filename: fn },
-    });
-  });
-
-  // A handful of intake recordings were also filed as
-  // "Español, Kaqchikel, English.m4a" — those double as translation pairs.
-  intakeFiles.forEach((fn) => {
-    const parts = fn
-      .replace(/\.m4a$/i, "")
-      .split(",")
-      .map((p) => p.trim())
-      .filter(Boolean);
-    if (parts.length >= 3) {
-      idx.push({
-        kaqchikel: parts[1],
-        spanish: parts[0],
-        english: parts[2],
-        source: "intake",
-        audio: { folderName: "Kaqchikel Casa Alitas", filename: fn },
-      });
-    }
-  });
-
-  return idx
-    .filter((item) => item.kaqchikel || item.spanish || item.english)
-    .map((item) => ({
-      ...item,
-      _k: normalizeForMatch(item.kaqchikel),
-      _s: normalizeForMatch(item.spanish),
-      _e: normalizeForMatch(item.english),
-    }));
-})();
-
-// Simple substring/exact matching across all three languages — no
-// translation is invented, only what's already in TRANSLATION_INDEX is
-// ever returned. Exact matches rank above partial ones.
-function searchTranslations(rawQuery) {
-  const q = normalizeForMatch(rawQuery);
-  if (!q) return [];
-
-  const scored = [];
-  for (const item of TRANSLATION_INDEX) {
-    let score = 0;
-    [item._k, item._s, item._e].forEach((val) => {
-      if (!val) return;
-      if (val === q) score = Math.max(score, 3);
-      else if (val.includes(q) || q.includes(val)) score = Math.max(score, 2);
-    });
-    if (score > 0) scored.push({ item, score });
-  }
-  scored.sort((a, b) => b.score - a.score);
-
-  const seen = new Set();
-  const results = [];
-  for (const s of scored) {
-    const key = s.item._k + "|" + s.item._s + "|" + s.item._e;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    results.push(s.item);
-    if (results.length >= 8) break;
-  }
-  return results;
 }
 
 function TranslateBox() {
@@ -794,6 +535,287 @@ function AudioCollection({
   );
 }
 
+function timeAgo(iso) {
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const s = Math.max(1, Math.floor((Date.now() - then) / 1000));
+  if (s < 60) return `${s}s ago`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return `${d}d ago`;
+}
+
+const LEARNING_STATUS_LABEL = {
+  pending: "pending review",
+  confirmed_correct: "confirmed correct",
+  corrected: "corrected",
+  rejected: "rejected",
+};
+
+// A separate, experimental, public feature — deliberately NOT the same data
+// as the TRANSLATE box or the GLOSSARY below. Those only ever show real,
+// already-verified archive data. This box lets Claude take a live guess at
+// a translation (grounded in that same real data, via /api/guess), logs
+// every guess publicly, and lets the archive keeper mark each one
+// confirmed / corrected / rejected — so nothing here is ever mistaken for
+// verified archive content, but everyone can watch it try and improve.
+function LearningLog() {
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [log, setLog] = useState([]);
+  const [score, setScore] = useState(null);
+  const [isOwner, setIsOwner] = useState(false);
+  const [showKeeperForm, setShowKeeperForm] = useState(false);
+  const [passcode, setPasscode] = useState("");
+  const [keeperError, setKeeperError] = useState("");
+
+  async function loadLog() {
+    try {
+      const res = await fetch("/api/guesses");
+      const data = await res.json();
+      setLog(data.entries || []);
+      setScore(data.score || null);
+    } catch {
+      // quietly ignore — the box just shows as empty until the API is reachable
+    }
+  }
+
+  useEffect(() => {
+    loadLog();
+    fetch("/api/owner")
+      .then((r) => r.json())
+      .then((d) => setIsOwner(!!d.isOwner))
+      .catch(() => {});
+    const t = setInterval(loadLog, 20000);
+    return () => clearInterval(t);
+  }, []);
+
+  async function submitGuess(e) {
+    e.preventDefault();
+    const text = input.trim();
+    if (!text || busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      const res = await fetch("/api/guess", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ input: text }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Something went wrong.");
+      } else {
+        setInput("");
+        await loadLog();
+      }
+    } catch {
+      setError("Couldn't reach the guessing feature just now.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function signInAsKeeper(e) {
+    e.preventDefault();
+    setKeeperError("");
+    try {
+      const res = await fetch("/api/owner", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ passcode }),
+      });
+      if (!res.ok) {
+        setKeeperError("that passcode isn't right.");
+        return;
+      }
+      setIsOwner(true);
+      setShowKeeperForm(false);
+      setPasscode("");
+    } catch {
+      setKeeperError("couldn't sign in just now.");
+    }
+  }
+
+  async function signOutKeeper() {
+    try {
+      await fetch("/api/owner", { method: "DELETE" });
+    } catch {}
+    setIsOwner(false);
+  }
+
+  async function scoreEntry(id, status) {
+    try {
+      const res = await fetch("/api/review", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      });
+      if (res.ok) loadLog();
+    } catch {}
+  }
+
+  return (
+    <div className="panel learning-log">
+      <div className="translate-box-title">
+        <span className="panel-title">
+          <AudioSignalIcon /> CLAUDE IS LEARNING KAQCHIKEL
+        </span>
+        <span className="panel-count">experimental · unverified</span>
+      </div>
+      <div className="panel-body translate-box-body">
+        <p className="section-note">
+          A separate, public experiment — not part of the archive above.
+          Type a word or short phrase and Claude will guess a translation on
+          the spot, grounded only in what's already recorded on this site.
+          Every guess is logged below exactly as unverified, and{" "}
+          {isOwner ? "you" : "the archive keeper"} can mark it confirmed,
+          corrected, or rejected. Nothing here becomes part of the real
+          glossary until a person checks it.
+        </p>
+
+        {score && score.total > 0 && (
+          <div className="score-readout">
+            {score.total} guess{score.total === 1 ? "" : "es"} logged so far
+            · {score.confirmed} confirmed correct · {score.corrected}{" "}
+            corrected · {score.rejected} rejected · {score.pending} awaiting
+            review
+          </div>
+        )}
+
+        <form onSubmit={submitGuess}>
+          <div className="search-field">
+            <input
+              type="text"
+              placeholder="type a word or short phrase — Kaqchikel, Spanish, or English…"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              maxLength={120}
+              disabled={busy}
+            />
+          </div>
+          <button
+            type="submit"
+            className="guess-submit"
+            disabled={busy || !input.trim()}
+          >
+            {busy ? "asking Claude…" : "ask Claude"}
+          </button>
+        </form>
+        {error && <div className="empty-state">{error}</div>}
+
+        <div className="keeper-row">
+          {isOwner ? (
+            <span className="source-badge owner">
+              🔑 signed in as archive keeper —{" "}
+              <button type="button" className="link-btn" onClick={signOutKeeper}>
+                sign out
+              </button>
+            </span>
+          ) : showKeeperForm ? (
+            <form className="owner-gate" onSubmit={signInAsKeeper}>
+              <input
+                type="password"
+                placeholder="archive keeper passcode"
+                value={passcode}
+                onChange={(e) => setPasscode(e.target.value)}
+              />
+              <button type="submit" className="link-btn">
+                enter
+              </button>
+              {keeperError && <span className="keeper-error">{keeperError}</span>}
+            </form>
+          ) : (
+            <button
+              type="button"
+              className="link-btn"
+              onClick={() => setShowKeeperForm(true)}
+            >
+              sign in as archive keeper
+            </button>
+          )}
+        </div>
+
+        <div className="learning-log-feed">
+          {log.length === 0 && (
+            <div className="empty-state">
+              no guesses logged yet — be the first to try one above.
+            </div>
+          )}
+          {log.map((row) => (
+            <div className="log-entry" key={row.id}>
+              <div className="entry-head">
+                <span
+                  className={
+                    "source-badge " +
+                    (row.source_type === "owner" ? "owner" : "visitor")
+                  }
+                >
+                  {row.source_type === "owner" ? "🔑 archive keeper" : "🌐 visitor"}
+                </span>
+                <span className={"status-badge " + row.status}>
+                  {LEARNING_STATUS_LABEL[row.status] || row.status}
+                </span>
+                <span className="log-time">{timeAgo(row.created_at)}</span>
+              </div>
+              <div className="definition">
+                <span className="lang-label">asked</span> {row.input_text}
+              </div>
+              {row.guessed_kaqchikel && (
+                <div className="definition">
+                  <span className="lang-label">kaq</span>{" "}
+                  {row.guessed_kaqchikel}
+                </div>
+              )}
+              {row.guessed_spanish && (
+                <div className="definition">
+                  <span className="lang-label">es</span> {row.guessed_spanish}
+                </div>
+              )}
+              {row.guessed_english && (
+                <div className="definition">
+                  <span className="lang-label">en</span>{" "}
+                  {row.guessed_english}
+                </div>
+              )}
+              {row.ai_note && <div className="literal-note">{row.ai_note}</div>}
+              {isOwner && row.status === "pending" && (
+                <div className="review-actions">
+                  <button
+                    type="button"
+                    className="link-btn"
+                    onClick={() => scoreEntry(row.id, "confirmed_correct")}
+                  >
+                    ✅ correct
+                  </button>
+                  <button
+                    type="button"
+                    className="link-btn"
+                    onClick={() => scoreEntry(row.id, "corrected")}
+                  >
+                    ✏️ needs correction
+                  </button>
+                  <button
+                    type="button"
+                    className="link-btn"
+                    onClick={() => scoreEntry(row.id, "rejected")}
+                  >
+                    ❌ reject
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [query, setQuery] = useState("");
 
@@ -839,6 +861,8 @@ export default function Home() {
       </header>
 
       <TranslateBox />
+
+      <LearningLog />
 
       <details className="panel">
         <summary>

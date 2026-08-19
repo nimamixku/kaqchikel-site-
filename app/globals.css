@@ -575,3 +575,84 @@ footer{
   margin-top:8px;
   font-style:italic;
 }
+
+/* ---- Learning Log: a separate, clearly-experimental public feature.
+   Dashed border keeps it visually distinct from the real, verified
+   TRANSLATE box and GLOSSARY panels above. ---- */
+.learning-log{
+  border:1px dashed var(--line);
+}
+.score-readout{
+  font-size:12.5px;
+  color:var(--ink-soft);
+  margin:-2px 0 14px;
+}
+.guess-submit{
+  margin:0 0 14px;
+  padding:9px 14px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  background:var(--ink);
+  color:#fff;
+  border:1px solid var(--ink);
+  cursor:pointer;
+}
+.guess-submit:hover:not(:disabled){opacity:0.85;}
+.guess-submit:disabled{opacity:0.4;cursor:default;}
+.keeper-row{
+  margin-bottom:16px;
+  font-size:12px;
+  color:var(--ink-soft);
+}
+.link-btn{
+  background:none;
+  border:none;
+  padding:0;
+  color:var(--ink);
+  text-decoration:underline;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  cursor:pointer;
+}
+.owner-gate{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.owner-gate input{
+  padding:6px 8px;
+  border:1px solid var(--line);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+}
+.keeper-error{color:#B00020;font-size:12px;}
+.learning-log-feed{margin-top:6px;}
+.log-entry{
+  padding:12px 0;
+  border-bottom:1px solid var(--line-soft);
+}
+.log-entry:last-child{border-bottom:none;}
+.log-entry .entry-head{gap:8px;}
+.source-badge{
+  font-size:11px;
+  padding:2px 6px;
+  border:1px solid var(--line);
+  color:var(--ink-soft);
+  white-space:nowrap;
+}
+.source-badge.owner{border-color:var(--ink);color:var(--ink);}
+.status-badge{
+  font-size:11px;
+  padding:2px 6px;
+  border:1px solid var(--line-soft);
+  color:var(--ink-faint);
+  text-transform:uppercase;
+  letter-spacing:0.02em;
+  white-space:nowrap;
+}
+.status-badge.confirmed_correct{border-color:#1a7f37;color:#1a7f37;}
+.status-badge.corrected{border-color:#9a6700;color:#9a6700;}
+.status-badge.rejected{border-color:#b00020;color:#b00020;}
+.log-time{font-size:11px;color:var(--ink-faint);margin-left:auto;}
+.review-actions{margin-top:8px;display:flex;gap:14px;flex-wrap:wrap;}
