@@ -612,13 +612,26 @@ footer{
 .learning-log{
   border:1px dashed var(--line);
 }
+/* This box sits in a narrower column now (next to TRANSLATE rather than
+   full-width), so its usual vertical spacing left a lot of open black
+   frame below it. Tightened rhythm here — same elements, less air
+   between them — so the box shrinks to fit rather than sprawling. */
+.learning-log .section-note{
+  margin:10px 0 12px;
+}
+.learning-log .search-field{
+  margin-bottom:10px;
+}
+.learning-log .empty-state{
+  padding:18px 16px;
+}
 .score-readout{
   font-size:12.5px;
   color:var(--ink-soft);
-  margin:-2px 0 14px;
+  margin:-2px 0 10px;
 }
 .guess-submit{
-  margin:0 0 14px;
+  margin:0 0 10px;
   padding:9px 14px;
   font-family:'IBM Plex Mono',monospace;
   font-size:13px;
@@ -630,7 +643,7 @@ footer{
 .guess-submit:hover:not(:disabled){opacity:0.85;}
 .guess-submit:disabled{opacity:0.4;cursor:default;}
 .keeper-row{
-  margin-bottom:16px;
+  margin-bottom:10px;
   font-size:12px;
   color:var(--ink-soft);
 }

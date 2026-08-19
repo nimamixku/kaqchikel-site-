@@ -669,13 +669,10 @@ function LearningLog() {
       </div>
       <div className="panel-body translate-box-body">
         <p className="section-note">
-          A separate, public experiment — not part of the archive above.
-          Type a word or short phrase and Claude will guess a translation on
-          the spot, grounded only in what's already recorded on this site.
-          Every guess is logged below exactly as unverified, and{" "}
-          {isOwner ? "you" : "the archive keeper"} can mark it confirmed,
-          corrected, or rejected. Nothing here becomes part of the real
-          glossary until a person checks it.
+          A separate, public experiment. Type a word and Claude guesses a
+          translation from what's already recorded here — logged below,
+          unverified, until {isOwner ? "you" : "the archive keeper"} reviews
+          it.
         </p>
 
         {score && score.total > 0 && (
