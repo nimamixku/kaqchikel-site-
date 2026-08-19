@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 import { query } from "../../../lib/db";
 import { isOwnerRequest, hashIp } from "../../../lib/ownerAuth";
-import { TRANSLATION_INDEX } from "../../../lib/glossaryData";
+import { guessTranslation, TRANSLATION_INDEX } from "../../../lib/glossaryData";
 
 export const runtime = "nodejs";
 
 const MAX_INPUT_LEN = 120;
-const MAX_PER_IP_PER_DAY = Number(process.env.MAX_GUESSES_PER_IP_PER_DAY || 15);
+
+// Real Claude guessing costs real money (your Anthropic prepaid credit
+// balance), so ONLY the signed-in archive keeper can ever trigger it —
+// enforced here, server-side, not just by hiding the button in the UI.
+// This is a sanity ceiling on your own testing, not a defense against
+// public abuse (visitors are already blocked below).
 const MAX_TOTAL_PER_DAY = Number(process.env.MAX_DAILY_GUESSES || 150);
 
 // Builds the guesser's grounding context straight from the site's own
@@ -23,16 +28,12 @@ function buildGroundingText() {
 async function askClaude(text) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return {
-      guessedKaqchikel: null,
-      guessedSpanish: null,
-      guessedEnglish: null,
-      confidence: "none",
-      note: "Guessing isn't switched on for this site yet (no API key configured).",
-    };
+    // No key configured yet — fall back to the free local guesser rather
+    // than breaking the box while you're still setting things up.
+    return guessTranslation(text);
   }
 
-  const model = process.env.ANTHROPIC_GUESS_MODEL || "claude-3-5-haiku-20241022";
+  const model = process.env.ANTHROPIC_GUESS_MODEL || "claude-haiku-4-5-20251001";
   const grounding = buildGroundingText();
 
   const system = `You are a cautious language-documentation assistant helping guess Kaqchikel translations for a small public community archive. Kaqchikel is an endangered, low-resource Mayan language with real dialectal variation between towns. You are NOT an authoritative source — every answer you give is shown publicly labeled as an unverified guess, and a human reviewer decides later whether it was right.
@@ -104,22 +105,17 @@ export async function POST(req) {
     const ipHash = hashIp(ip);
     const owner = isOwnerRequest(req);
 
-    // Rate limits protect against a runaway bill from public abuse — they
-    // don't apply to the archive keeper's own testing.
+    // Guessing calls a paid API, so only the signed-in archive keeper can
+    // trigger it. Visitors can still see every guess and its outcome in
+    // the public log below; they just can't spend your API balance.
     if (!owner) {
-      const { rows: ipRows } = await query(
-        `select count(*)::int as c from guess_log where ip_hash = $1 and created_at > now() - interval '1 day'`,
-        [ipHash]
+      return NextResponse.json(
+        {
+          error:
+            "Guessing is limited to the archive keeper for now — sign in above if that's you. Everyone can still watch the log.",
+        },
+        { status: 403 }
       );
-      if (ipRows[0].c >= MAX_PER_IP_PER_DAY) {
-        return NextResponse.json(
-          {
-            error:
-              "You've hit today's guess limit for this experiment — come back tomorrow!",
-          },
-          { status: 429 }
-        );
-      }
     }
 
     const { rows: totalRows } = await query(
@@ -129,7 +125,7 @@ export async function POST(req) {
       return NextResponse.json(
         {
           error:
-            "Claude's hit its daily guess budget for this experiment — check back tomorrow.",
+            "Hit today's sanity cap for this experiment — check back tomorrow (or raise MAX_DAILY_GUESSES).",
         },
         { status: 429 }
       );
@@ -143,7 +139,7 @@ export async function POST(req) {
        values ($1,$2,$3,$4,$5,$6,$7,$8)
        returning id, source_type, input_text, guessed_kaqchikel, guessed_spanish, guessed_english, confidence, ai_note, status, created_at`,
       [
-        owner ? "owner" : "visitor",
+        "owner",
         text,
         guess.guessedKaqchikel || null,
         guess.guessedSpanish || null,

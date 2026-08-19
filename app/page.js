@@ -669,10 +669,10 @@ function LearningLog() {
       </div>
       <div className="panel-body translate-box-body">
         <p className="section-note">
-          A separate, public experiment. Type a word and Claude guesses a
-          translation from what's already recorded here — logged below,
-          unverified, until {isOwner ? "you" : "the archive keeper"} reviews
-          it.
+          A separate, public experiment. The archive keeper tests Claude's
+          guesses against what's already recorded here — every guess is
+          logged below, unverified, until it's reviewed. Guessing itself is
+          kept to the archive keeper only; anyone can watch.
         </p>
 
         {score && score.total > 0 && (
@@ -683,27 +683,6 @@ function LearningLog() {
             review
           </div>
         )}
-
-        <form onSubmit={submitGuess}>
-          <div className="search-field">
-            <input
-              type="text"
-              placeholder="type a word or short phrase — Kaqchikel, Spanish, or English…"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              maxLength={120}
-              disabled={busy}
-            />
-          </div>
-          <button
-            type="submit"
-            className="guess-submit"
-            disabled={busy || !input.trim()}
-          >
-            {busy ? "asking Claude…" : "ask Claude"}
-          </button>
-        </form>
-        {error && <div className="empty-state">{error}</div>}
 
         <div className="keeper-row">
           {isOwner ? (
@@ -736,6 +715,34 @@ function LearningLog() {
             </button>
           )}
         </div>
+
+        {isOwner ? (
+          <form onSubmit={submitGuess}>
+            <div className="search-field">
+              <input
+                type="text"
+                placeholder="type a word or short phrase — Kaqchikel, Spanish, or English…"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                maxLength={120}
+                disabled={busy}
+              />
+            </div>
+            <button
+              type="submit"
+              className="guess-submit"
+              disabled={busy || !input.trim()}
+            >
+              {busy ? "asking Claude…" : "ask Claude"}
+            </button>
+          </form>
+        ) : (
+          <p className="keeper-only-note">
+            only the archive keeper can ask Claude for a guess right now —
+            anyone can still watch the results below.
+          </p>
+        )}
+        {error && <div className="empty-state">{error}</div>}
 
         <div className="learning-log-feed">
           {log.length === 0 && (
