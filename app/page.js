@@ -875,9 +875,6 @@ export default function Home() {
           A public, growing record of Kaqchikel words and phrases with
           Spanish meanings, drawn from field recordings and notes.
         </p>
-        <div className="stat-row">
-          {entries.length} entr{entries.length === 1 ? "y" : "ies"}
-        </div>
       </header>
 
       <div className="tech-stack-bar">
@@ -915,7 +912,7 @@ export default function Home() {
       </div>
       <p className="tech-stack-caption">
         built by Abra Kinkopf with proprietary data — any outside materials
-        used for diagramming or breaking down the language are individually
+        used for diagramming or analyzing the language are individually
         cited.
       </p>
 
