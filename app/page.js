@@ -758,8 +758,8 @@ function LearningLog() {
               aria-expanded={logExpanded}
             >
               {logExpanded
-                ? "hide guess log ▲"
-                : `show guess log (${log.length}) ▼`}
+                ? `▲ hide log`
+                : `▼ view log (${log.length})`}
             </button>
           )}
           {logExpanded && (

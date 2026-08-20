@@ -680,16 +680,20 @@ footer{
 .log-toggle{
   display:block;
   width:100%;
-  text-align:left;
-  background:none;
-  border:1px solid var(--line);
-  padding:8px 10px;
+  text-align:center;
+  background:#000;
+  border:1px solid #000;
+  padding:10px 10px;
   font-family:'IBM Plex Mono',monospace;
   font-size:12.5px;
-  color:var(--ink);
+  font-weight:600;
+  letter-spacing:0.03em;
+  text-transform:uppercase;
+  color:#fff;
   cursor:pointer;
+  border-radius:2px;
 }
-.log-toggle:hover{background:var(--line-soft);}
+.log-toggle:hover{background:#222;}
 .log-entries-scroll{
   max-height:420px;
   overflow-y:auto;
