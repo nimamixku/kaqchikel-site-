@@ -76,17 +76,39 @@ Keep "note" under 200 characters — briefly explain your reasoning or flag unce
 
   const data = await resp.json();
   const raw = data?.content?.[0]?.text || "{}";
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return {
-      guessedKaqchikel: null,
-      guessedSpanish: null,
-      guessedEnglish: null,
-      confidence: "low",
-      note: "Couldn't parse a clean guess that time — try rephrasing.",
-    };
+  return parseGuessJson(raw);
+}
+
+// Claude is instructed to reply with strict JSON, but real-world replies
+// sometimes come wrapped in a markdown code fence or have a stray sentence
+// before/after the object. Rather than failing the whole guess over that,
+// strip common wrapping and pull out the {...} object itself.
+function parseGuessJson(raw) {
+  const attempts = [raw];
+
+  const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenced) attempts.push(fenced[1]);
+
+  const braceMatch = raw.match(/\{[\s\S]*\}/);
+  if (braceMatch) attempts.push(braceMatch[0]);
+
+  for (const candidate of attempts) {
+    try {
+      const parsed = JSON.parse(candidate.trim());
+      if (parsed && typeof parsed === "object") return parsed;
+    } catch {
+      // try the next candidate
+    }
   }
+
+  console.error("Could not parse Claude guess JSON:", raw);
+  return {
+    guessedKaqchikel: null,
+    guessedSpanish: null,
+    guessedEnglish: null,
+    confidence: "low",
+    note: "Couldn't parse a clean guess that time — try rephrasing.",
+  };
 }
 
 export async function POST(req) {
