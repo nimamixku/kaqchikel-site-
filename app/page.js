@@ -880,13 +880,6 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="top-panels-row">
-        <TranslateBox />
-        <div className="learning-log-frame">
-          <LearningLog />
-        </div>
-      </div>
-
       <div className="tech-stack-bar">
         <span className="tech-stack-item">
           <img src="/logos/nextjs.svg" alt="" className="tech-stack-icon" />
@@ -925,6 +918,13 @@ export default function Home() {
         used for diagramming or breaking down the language are individually
         cited.
       </p>
+
+      <div className="top-panels-row">
+        <TranslateBox />
+        <div className="learning-log-frame">
+          <LearningLog />
+        </div>
+      </div>
 
       <details className="panel">
         <summary>
