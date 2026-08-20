@@ -905,8 +905,10 @@ export default function Home() {
         <span className="tech-stack-sep">·</span>
         <span className="tech-stack-item">
           <img src="/logos/anthropic.svg" alt="" className="tech-stack-icon" />
-          Haiku
+          Anthropic API (Haiku)
         </span>
+        <span className="tech-stack-sep">·</span>
+        <span className="tech-stack-item">Claude AI</span>
         <span className="tech-stack-sep">·</span>
         <span className="tech-stack-item">Mac Terminal</span>
       </div>
