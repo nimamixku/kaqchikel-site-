@@ -887,6 +887,45 @@ export default function Home() {
         </div>
       </div>
 
+      <div className="tech-stack-bar">
+        <span className="tech-stack-item">
+          <img src="/logos/nextjs.svg" alt="" className="tech-stack-icon" />
+          Next.js
+        </span>
+        <span className="tech-stack-sep">·</span>
+        <span className="tech-stack-item">
+          <img src="/logos/nodejs.png" alt="" className="tech-stack-icon" />
+          Node.js
+        </span>
+        <span className="tech-stack-sep">·</span>
+        <span className="tech-stack-item">
+          <img src="/logos/vercel.svg" alt="" className="tech-stack-icon" />
+          Vercel
+        </span>
+        <span className="tech-stack-sep">·</span>
+        <span className="tech-stack-item">
+          <img src="/logos/github.svg" alt="" className="tech-stack-icon" />
+          GitHub
+        </span>
+        <span className="tech-stack-sep">·</span>
+        <span className="tech-stack-item">
+          <img src="/logos/neon.svg" alt="" className="tech-stack-icon" />
+          Neon Postgres
+        </span>
+        <span className="tech-stack-sep">·</span>
+        <span className="tech-stack-item">
+          <img src="/logos/anthropic.svg" alt="" className="tech-stack-icon" />
+          Haiku
+        </span>
+        <span className="tech-stack-sep">·</span>
+        <span className="tech-stack-item">Mac Terminal</span>
+      </div>
+      <p className="tech-stack-caption">
+        built by Abra Kinkopf with proprietary data — any outside materials
+        used for diagramming or breaking down the language are individually
+        cited.
+      </p>
+
       <details className="panel">
         <summary>
           <span className="panel-title">GLOSSARY</span>

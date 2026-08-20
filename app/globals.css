@@ -252,6 +252,44 @@ header p.desc{
   padding:12px;
 }
 
+/* A narrow black bar crediting the tech stack, sitting between the two
+   tools up top and the glossary below. */
+.tech-stack-bar{
+  margin-top:24px;
+  background:#000;
+  padding:9px 14px;
+  text-align:center;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11.5px;
+  letter-spacing:0.02em;
+  color:#fff;
+}
+.tech-stack-item{
+  white-space:nowrap;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  vertical-align:middle;
+}
+.tech-stack-icon{
+  width:12px;
+  height:12px;
+  object-fit:contain;
+  display:inline-block;
+}
+.tech-stack-sep{color:#777;margin:0 8px;}
+.tech-stack-caption{
+  margin:6px 0 0;
+  font-size:11.5px;
+  color:var(--ink-faint);
+  text-align:center;
+  font-style:italic;
+}
+@media (max-width:640px){
+  .tech-stack-bar{font-size:10.5px;}
+  .tech-stack-sep{margin:0 5px;}
+}
+
 .translate-box{
   border:1px solid var(--line);
 }
