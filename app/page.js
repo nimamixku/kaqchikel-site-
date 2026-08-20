@@ -572,6 +572,7 @@ function LearningLog() {
   const [showKeeperForm, setShowKeeperForm] = useState(false);
   const [passcode, setPasscode] = useState("");
   const [keeperError, setKeeperError] = useState("");
+  const [logExpanded, setLogExpanded] = useState(false);
 
   async function loadLog() {
     try {
@@ -745,11 +746,24 @@ function LearningLog() {
         {error && <div className="empty-state">{error}</div>}
 
         <div className="learning-log-feed">
-          {log.length === 0 && (
+          {log.length === 0 ? (
             <div className="empty-state">
               no guesses logged yet — be the first to try one above.
             </div>
+          ) : (
+            <button
+              type="button"
+              className="log-toggle"
+              onClick={() => setLogExpanded((v) => !v)}
+              aria-expanded={logExpanded}
+            >
+              {logExpanded
+                ? "hide guess log ▲"
+                : `show guess log (${log.length}) ▼`}
+            </button>
           )}
+          {logExpanded && (
+          <div className="log-entries-scroll">
           {log.map((row) => (
             <div className="log-entry" key={row.id}>
               <div className="entry-head">
@@ -814,6 +828,8 @@ function LearningLog() {
               )}
             </div>
           ))}
+          </div>
+          )}
         </div>
       </div>
     </div>
