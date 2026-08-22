@@ -772,3 +772,96 @@ footer{
 .status-badge.rejected{border-color:#b00020;color:#b00020;}
 .log-time{font-size:11px;color:var(--ink-faint);margin-left:auto;}
 .review-actions{margin-top:8px;display:flex;gap:14px;flex-wrap:wrap;}
+
+/* Public "what we're building" panel: the translation-model plan,
+   rendered as a simple checklist rather than the color-coded breakdown
+   used for glossary sentences — this is status tracking, not language data. */
+.plan-list{
+  margin-top:10px;
+}
+.plan-item{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  font-size:13.5px;
+  line-height:1.6;
+  color:var(--ink);
+  margin-bottom:11px;
+}
+.plan-marker{
+  flex:none;
+  width:11px;
+  height:11px;
+  margin-top:3px;
+  border:1px solid var(--ink-faint);
+  border-radius:2px;
+}
+.plan-marker.done{
+  background:var(--ink);
+  border-color:var(--ink);
+}
+.plan-marker.progress{
+  background:linear-gradient(90deg, var(--ink) 50%, transparent 50%);
+}
+.plan-step-label{
+  color:var(--ink-faint);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  display:block;
+  margin-bottom:2px;
+}
+
+/* The plan panel gets the same solid-black treatment as .tech-stack-bar
+   up top, so it reads as its own distinct, expandable band rather than
+   a plain white panel like GLOSSARY/EXAMPLE SENTENCES/CHILDREN'S SONGS.
+   Collapsed, it's a black bar; opening it reveals the plan on the usual
+   light panel-body underneath. */
+.panel.plan-panel{
+  background:#000;
+  border-color:#000;
+}
+.panel.plan-panel summary{
+  display:block;
+  color:#fff;
+  letter-spacing:0.02em;
+}
+/* This panel uses its own inline [+]/[-] toggle spans (below) instead of
+   the shared ::before marker, since the summary now stacks two rows
+   (title and tool list) rather than sitting in a single flex line. */
+.panel.plan-panel summary::before{
+  content:none;
+}
+.panel.plan-panel .panel-count{
+  color:#999;
+}
+.panel.plan-panel summary:hover{
+  background:#161616;
+}
+.plan-summary-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.plan-toggle-icon{
+  color:#999;
+  margin-right:2px;
+}
+.panel.plan-panel[open] .plan-toggle-closed{display:none;}
+.panel.plan-panel:not([open]) .plan-toggle-open{display:none;}
+.plan-tools-row{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid rgba(255,255,255,0.14);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  color:#ccc;
+  line-height:2;
+  text-align:center;
+}
+.plan-tools-row .tech-stack-sep{margin:0 8px;}
+.panel.plan-panel .panel-body{
+  background:var(--panel-bg);
+  border-top:none;
+  color:var(--ink);
+}

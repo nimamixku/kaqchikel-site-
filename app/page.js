@@ -1089,6 +1089,184 @@ export default function Home() {
 
       <ChildrenSongsSection />
 
+      <details className="panel plan-panel">
+        <summary>
+          <div className="plan-summary-top">
+            <span className="panel-title">
+              <span className="plan-toggle-icon plan-toggle-closed">[+]</span>
+              <span className="plan-toggle-icon plan-toggle-open">[-]</span>{" "}
+              BUILDING A TRANSLATION MODEL
+            </span>
+            <span className="panel-count">project plan</span>
+          </div>
+          <div className="plan-tools-row">
+            <span className="tech-stack-item">Hugging Face</span>
+            <span className="tech-stack-sep">·</span>
+            <span className="tech-stack-item">PyTorch</span>
+            <span className="tech-stack-sep">·</span>
+            <span className="tech-stack-item">OpenAI Whisper</span>
+            <span className="tech-stack-sep">·</span>
+            <span className="tech-stack-item">NLLB / mT5</span>
+            <br />
+            <span className="tech-stack-item">Google Colab</span>
+            <span className="tech-stack-sep">·</span>
+            <span className="tech-stack-item">LoRA / PEFT</span>
+            <span className="tech-stack-sep">·</span>
+            <span className="tech-stack-item">chrF eval</span>
+            <span className="tech-stack-sep">·</span>
+            <span className="tech-stack-item">Replicate</span>
+          </div>
+        </summary>
+        <div className="panel-body">
+          <p className="section-note">
+            The long-term goal for this project is a real, standalone
+            Kaqchikel translation tool — not just the search above, and not
+            just the experimental Claude guess box. Here&rsquo;s the honest
+            landscape it&rsquo;s starting from.
+          </p>
+
+          <div className="breakdown">
+            <div className="breakdown-title">What already exists (and what doesn&rsquo;t)</div>
+            <p className="section-note" style={{ marginTop: 0 }}>
+              As of now, Kaqchikel has no machine-translation support
+              anywhere: not in Google Translate (its 2024 expansion added
+              three other Mayan languages — Q&rsquo;eqchi&rsquo;, Yucatec
+              Maya, Eastern Huasteca Nahuatl — but not this one), not in Meta&rsquo;s
+              NLLB-200 (zero Mayan languages at all, out of 200), and not in
+              AmericasNLP, the main research shared task for indigenous
+              American languages (its Mayan-adjacent coverage is other
+              language families entirely — Quechua, Guaraní, Nahuatl). There&rsquo;s
+              no ready-made dataset for it on OPUS or Hugging Face, and no
+              Mayan-language support in OpenAI&rsquo;s Whisper either. A 2024
+              academic paper built clean datasets for 15 other Mayan
+              languages specifically to close this kind of gap — and
+              explicitly could not do the same for Kaqchikel.
+            </p>
+            <p className="section-note">
+              The one place Kaqchikel text does exist at any real scale is
+              Bible translations (scraped from sources like JW.org). That
+              doesn&rsquo;t solve the problem: it&rsquo;s decades-old
+              religious-register language, not everyday conversational
+              speech, so a model trained on it would translate a modern,
+              casual sentence strangely even if it handled scripture fine.
+              It also isn&rsquo;t clean, verified parallel data — the 2024
+              paper above described exactly this Kaqchikel text as noisy and
+              unaligned, not ready to train on as-is. So &ldquo;some
+              Kaqchikel text exists somewhere&rdquo; is true, but it isn&rsquo;t
+              the same as having usable translation data, which is why this
+              project is building its own from real field recordings and
+              speakers instead.
+            </p>
+          </div>
+
+          <div className="breakdown">
+            <div className="breakdown-title">Already done</div>
+            <div className="plan-list">
+              <div className="plan-item">
+                <span className="plan-marker done"></span>
+                <span>
+                  The public glossary and audio above, built from real field
+                  data collected over roughly 10 years.
+                </span>
+              </div>
+              <div className="plan-item">
+                <span className="plan-marker done"></span>
+                <span>
+                  The raw archive organized into a private set and a
+                  separately reviewed, approved-for-public set, with every
+                  file checksummed for duplicates.
+                </span>
+              </div>
+              <div className="plan-item">
+                <span className="plan-marker done"></span>
+                <span>
+                  The &ldquo;Claude is learning Kaqchikel&rdquo; guess log
+                  above, kept running on purpose as an ongoing, public record
+                  of what a general-purpose AI does and doesn&rsquo;t already
+                  know about this language.
+                </span>
+              </div>
+              <div className="plan-item">
+                <span className="plan-marker done"></span>
+                <span>
+                  Scoping the realistic path to an actual model: fine-tuning
+                  small existing models rather than training from scratch,
+                  and confirming there&rsquo;s no shortcut to skip — no prior
+                  Kaqchikel dataset or checkpoint exists to build on.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="breakdown">
+            <div className="breakdown-title">Next steps, in order</div>
+            <div className="plan-list">
+              <div className="plan-item">
+                <span className="plan-marker"></span>
+                <span>
+                  <span className="plan-step-label">01</span>
+                  Inventory the full archive for what&rsquo;s actually usable
+                  for training — sorted by whether it&rsquo;s word-level or
+                  sentence-level, and whether audio has a matching
+                  translation.
+                </span>
+              </div>
+              <div className="plan-item">
+                <span className="plan-marker"></span>
+                <span>
+                  <span className="plan-step-label">02</span>
+                  Build a real sentence-level parallel corpus — the biggest
+                  gap, since almost everything so far is words and short
+                  phrases, not full sentences.
+                </span>
+              </div>
+              <div className="plan-item">
+                <span className="plan-marker"></span>
+                <span>
+                  <span className="plan-step-label">03</span>
+                  Fine-tune Whisper on real Kaqchikel audio, since no
+                  speech-to-text tool supports this language at all today.
+                </span>
+              </div>
+              <div className="plan-item">
+                <span className="plan-marker"></span>
+                <span>
+                  <span className="plan-step-label">04</span>
+                  Fine-tune a small existing translation model on the new
+                  sentence corpus.
+                </span>
+              </div>
+              <div className="plan-item">
+                <span className="plan-marker"></span>
+                <span>
+                  <span className="plan-step-label">05</span>
+                  Evaluate it honestly, with metrics suited to a
+                  morphologically complex language, not just a surface-level
+                  score.
+                </span>
+              </div>
+              <div className="plan-item">
+                <span className="plan-marker"></span>
+                <span>
+                  <span className="plan-step-label">06</span>
+                  Host the finished model and connect it to this site as a
+                  real, working feature.
+                </span>
+              </div>
+              <div className="plan-item">
+                <span className="plan-marker progress"></span>
+                <span>
+                  <span className="plan-step-label">07 — ongoing</span>
+                  Keep the guess log above running throughout, as a
+                  continuous check on where AI still gets this language
+                  wrong.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
       <footer>
         A living document — entries are added as more field data is transcribed.
         <div className="footer-credit">
