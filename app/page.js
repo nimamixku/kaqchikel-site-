@@ -331,7 +331,7 @@ function AmendmentItem({
             <input
               value={editQuestion}
               onChange={(e) => onChangeEdit("question", e.target.value)}
-              placeholder="short lead-in, e.g. b'aq vs b'aqil — when to use"
+              placeholder="short lead-in, e.g. b'aq or b'aqil, when to use"
             />
             <textarea
               value={editNote}
@@ -660,7 +660,7 @@ function ClarificationSection() {
                 <input
                   value={newQuestion}
                   onChange={(e) => setNewQuestion(e.target.value)}
-                  placeholder="short lead-in, e.g. b'aq vs b'aqil — when to use"
+                  placeholder="short lead-in, e.g. b'aq or b'aqil, when to use"
                   maxLength={160}
                 />
                 <textarea

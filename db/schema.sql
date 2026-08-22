@@ -35,7 +35,7 @@ create table if not exists clarifications (
   id bigserial primary key,
   source text not null,       -- which section of the site this is about, e.g. "ART — word bank"
   item text not null,         -- the exact word/phrase text as it appears in a word bank (matched to flag it inline there)
-  question text not null,     -- short lead-in label for the collapsed row, e.g. "b'aq vs b'aqil — when to use"
+  question text not null,     -- short lead-in label for the collapsed row, e.g. "b'aq or b'aqil, when to use"
   note text not null,         -- the fuller clarification note, shown once expanded
   resolved boolean not null default false,
   created_at timestamptz not null default now(),
@@ -49,7 +49,7 @@ create index if not exists clarifications_created_at_idx on clarifications (crea
 -- reappear after this migration instead of starting from an empty log.
 -- Safe to re-run: each insert only fires if that item isn't already there.
 insert into clarifications (source, item, question, note)
-select 'ART — word bank', 'rub''aqil', 'b''aq vs b''aqil — when to use',
+select 'ART — word bank', 'rub''aqil', 'b''aq or b''aqil, when to use',
   'ru- usually marks 3rd person possessive ("its"), but here it seems to function as "the" instead. b''aq is the root for bone; unclear whether -il on b''aqil is a plural marker or something else — needs grammatical clarification.'
 where not exists (select 1 from clarifications where item = 'rub''aqil');
 
