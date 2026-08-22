@@ -248,6 +248,19 @@ function findAmendment(amendments, kaqWord) {
   return amendments.find((a) => a.item.trim().toLowerCase() === target);
 }
 
+// Opens the LANGUAGE AMENDMENTS panel and the one matching entry inside it,
+// then scrolls that entry into view — so clicking a flagged word takes you
+// straight to its actual amendment instead of just repeating the note.
+function jumpToAmendment(id) {
+  const panel = document.getElementById("language-amendments");
+  if (panel) panel.open = true;
+  const item = document.getElementById(`amendment-${id}`);
+  if (item) {
+    item.open = true;
+    item.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+
 function ArtPiece({ piece, amendments }) {
   return (
     <details className="panel art-piece">
@@ -268,10 +281,16 @@ function ArtPiece({ piece, amendments }) {
                   <span className="word-bank-en">{w.en}</span>
                   {w.morph && <span className="word-bank-morph">{w.morph}</span>}
                   {flagged && (
-                    <details className="word-bank-flag">
-                      <summary>⚑ {flagged.question}</summary>
-                      <div className="word-bank-flag-note">{flagged.note}</div>
-                    </details>
+                    <a
+                      href={`#amendment-${flagged.id}`}
+                      className="word-bank-flag"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        jumpToAmendment(flagged.id);
+                      }}
+                    >
+                      ⚑ {flagged.question}
+                    </a>
                   )}
                 </div>
               );
@@ -307,7 +326,7 @@ function AmendmentItem({
   onDelete,
 }) {
   return (
-    <details className="panel amendment-item">
+    <details className="panel amendment-item" id={`amendment-${c.id}`}>
       <summary>
         <span className="panel-title">
           <span className={"plan-marker" + (c.resolved ? " done" : "")}></span>
@@ -560,7 +579,7 @@ function ClarificationSection() {
   const openCount = entries.filter((e) => !e.resolved).length;
 
   return (
-    <details className="panel plan-panel">
+    <details className="panel plan-panel" id="language-amendments">
       <summary>
         <div className="plan-summary-top">
           <span className="panel-title">
@@ -729,13 +748,6 @@ function ArtSection() {
         <span className="panel-count">{ART_PIECES.length} pieces</span>
       </summary>
       <div className="panel-body">
-        <p className="section-note">
-          A personal series translating song lyrics and quotes into
-          Kaqchikel, layered over photography. Each piece is shown in full
-          below; the lyric/quote text itself isn&rsquo;t reproduced
-          separately since it belongs to its original artist — only a small
-          word bank pulled from each piece is.
-        </p>
         {ART_PIECES.map((piece) => (
           <ArtPiece key={piece.key} piece={piece} amendments={amendments} />
         ))}

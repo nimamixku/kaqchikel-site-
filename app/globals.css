@@ -915,23 +915,15 @@ footer{
   max-width:180px;
 }
 .word-bank-flag{
+  display:block;
   margin-top:4px;
   padding-top:4px;
   border-top:1px dashed var(--line);
   max-width:180px;
-}
-.word-bank-flag summary{
-  list-style:none;
+  font-size:10.5px;
+  color:#8a5a00;
+  text-decoration:underline;
   cursor:pointer;
-  font-size:10.5px;
-  color:#8a5a00;
-  -webkit-tap-highlight-color:transparent;
-}
-.word-bank-flag summary::-webkit-details-marker{display:none;}
-.word-bank-flag-note{
-  font-size:10.5px;
-  color:#8a5a00;
-  margin-top:4px;
 }
 
 /* LANGUAGE AMENDMENTS panel — reuses .keeper-row/.owner-gate/.plan-list from
