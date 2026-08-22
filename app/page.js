@@ -1128,35 +1128,55 @@ export default function Home() {
           <div className="breakdown">
             <div className="breakdown-title">What already exists (and what doesn&rsquo;t)</div>
             <p className="section-note" style={{ marginTop: 0 }}>
-              As of now, Kaqchikel has no machine-translation support
-              anywhere: not in Google Translate (its 2024 expansion added
-              three other Mayan languages — Q&rsquo;eqchi&rsquo;, Yucatec
-              Maya, Eastern Huasteca Nahuatl — but not this one), not in Meta&rsquo;s
-              NLLB-200 (zero Mayan languages at all, out of 200), and not in
-              AmericasNLP, the main research shared task for indigenous
-              American languages (its Mayan-adjacent coverage is other
-              language families entirely — Quechua, Guaraní, Nahuatl). There&rsquo;s
-              no ready-made dataset for it on OPUS or Hugging Face, and no
-              Mayan-language support in OpenAI&rsquo;s Whisper either. A 2024
-              academic paper built clean datasets for 15 other Mayan
-              languages specifically to close this kind of gap — and
-              explicitly could not do the same for Kaqchikel.
+              As of now, there&rsquo;s no real machine-translation
+              infrastructure for Kaqchikel: not in Google Translate (its 2024
+              expansion added three other Mayan languages — Q&rsquo;eqchi&rsquo;,
+              Yucatec Maya, Eastern Huasteca Nahuatl — but not this one), not
+              in Meta&rsquo;s NLLB-200 (zero Mayan languages at all, out of
+              200), and it has never been a target language in the
+              AmericasNLP shared task (whose own Mayan-adjacent coverage is
+              other language families entirely — Quechua, Guaraní, Nahuatl).
             </p>
             <p className="section-note">
-              The one place Kaqchikel text does exist at any real scale is
-              Bible translations (scraped from sources like JW.org). That
-              doesn&rsquo;t solve the problem: it&rsquo;s decades-old
-              religious-register language, not everyday conversational
-              speech, so a model trained on it would translate a modern,
-              casual sentence strangely even if it handled scripture fine.
-              It also isn&rsquo;t clean, verified parallel data — the 2024
-              paper above described exactly this Kaqchikel text as noisy and
-              unaligned, not ready to train on as-is. So &ldquo;some
-              Kaqchikel text exists somewhere&rdquo; is true, but it isn&rsquo;t
-              the same as having usable translation data, which is why this
-              project is building its own from real field recordings and
-              speakers instead.
+              It does turn up in a couple of narrow, scattered places worth
+              being precise about: a 2021 AmericasNLP workshop paper tested
+              a K&rsquo;iche&rsquo;-trained part-of-speech tagger on
+              Kaqchikel as a cross-lingual transfer target (not a system
+              built for Kaqchikel itself), and Hugging Face hosts a handful
+              of small artifacts — six dialect-specific text-to-speech
+              voices from Meta&rsquo;s MMS project, trained on read
+              Bible-style audio in one narrow speaking style per dialect,
+              and a roughly 1,150-clip proof-of-concept speech-recognition
+              model trained on children&rsquo;s-story recordings. None of
+              that is parallel translation data, none of it is
+              general-purpose, and OPUS — the standard hub for parallel-text
+              corpora — has no Kaqchikel corpus at all. There&rsquo;s no
+              Mayan-language support in OpenAI&rsquo;s Whisper either.
             </p>
+            <p className="section-note">
+              A 2024 academic paper (
+              <em>Curated Datasets and Neural Models for Machine Translation
+              of Mayan Languages</em>, NAACL 2024) built clean training data
+              for 15 other Mayan languages specifically to close gaps like
+              this — and explicitly could not do the same for Kaqchikel,
+              citing only noisy scraped Bible text as available. That text
+              (from sources like JW.org) doesn&rsquo;t solve the problem
+              either way: it&rsquo;s decades-old religious-register language,
+              not everyday conversational speech, and it isn&rsquo;t clean,
+              verified parallel data. So &ldquo;a little Kaqchikel text and a
+              few narrow artifacts exist somewhere&rdquo; is true, but it
+              isn&rsquo;t the same as having usable translation
+              infrastructure, which is why this project is building its own
+              from real field recordings and speakers instead.
+            </p>
+            <div className="citation">
+              Sources: Tyers &amp; Howell, &ldquo;A survey of part-of-speech
+              tagging approaches applied to K&rsquo;iche&rsquo;,&rdquo;
+              AmericasNLP 2021 (aclanthology.org/2021.americasnlp-1.6).
+              &ldquo;Curated Datasets and Neural Models for Machine
+              Translation of Mayan Languages,&rdquo; NAACL 2024
+              (aclanthology.org/2024.naacl-long.156).
+            </div>
           </div>
 
           <div className="breakdown">
