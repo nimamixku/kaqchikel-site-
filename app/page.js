@@ -734,8 +734,7 @@ function ArtSection() {
           Kaqchikel, layered over photography. Each piece is shown in full
           below; the lyric/quote text itself isn&rsquo;t reproduced
           separately since it belongs to its original artist — only a small
-          word bank pulled from each piece is. A flagged word (⚑) has an open
-          grammar question — see LANGUAGE AMENDMENTS below.
+          word bank pulled from each piece is.
         </p>
         {ART_PIECES.map((piece) => (
           <ArtPiece key={piece.key} piece={piece} amendments={amendments} />
