@@ -126,7 +126,7 @@ const ART_PIECES = [
       { kaq: "b'enäq", en: "in love", morph: "root only — no prefix" },
       { kaq: "nuk'u'x", en: "my heart", morph: "nu- (my) + k'u'x (heart)" },
       { kaq: "nuq'a'", en: "my hand", morph: "nu- (my) + q'a' (hand)" },
-      { kaq: "rub'aqil", en: "the bone", morph: "ru- (usually 3rd person possessive 'its', but functioning here as 'the') + b'aqil (bone — b'aq is the root)" },
+      { kaq: "rub'aqil", en: "the bone", morph: "ru- (usually 3rd person possessive 'its', but functioning here as 'the') + b'aqil (bone — b'aq is the root; -il may mark plural here, needs grammatical clarification)" },
       { kaq: "woyowal", en: "my anger", morph: "w- (my, before a vowel) + oyowal (anger)" },
       { kaq: "ya'", en: "water", morph: "root only — no prefix" },
     ],
@@ -385,6 +385,7 @@ function AmendmentItem({
 
 function ClarificationSection() {
   const [entries, setEntries] = useState([]);
+  const [ready, setReady] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [showKeeperForm, setShowKeeperForm] = useState(false);
   const [passcode, setPasscode] = useState("");
@@ -410,8 +411,10 @@ function ClarificationSection() {
       const res = await fetch("/api/clarifications");
       const data = await res.json();
       setEntries(data.entries || []);
+      setReady(!!data.ready);
     } catch {
-      // quietly ignore — the panel just shows as empty until the API is reachable
+      // quietly ignore — the panel just stays hidden until the API is reachable
+      setReady(false);
     }
   }
 
@@ -554,6 +557,11 @@ function ClarificationSection() {
   }
 
   const openCount = entries.filter((e) => !e.resolved).length;
+
+  // Stay invisible until the clarifications table actually exists — no
+  // point showing an empty-looking panel before the one-time database
+  // migration has been run.
+  if (!ready) return null;
 
   return (
     <details className="panel plan-panel">
