@@ -208,7 +208,7 @@ const ART_PIECES = [
   {
     key: "gabriel-hirsch",
     title: "Untitled",
-    credit: "Edward Hirsch, “Gabriel” (quote)",
+    credit: "Edward Hirsch, “Gabriel”",
     file: "gabriel-hirsch.jpg",
     wordBank: [
       { kaq: "chwa'q", en: "morning", morph: "root only — no prefix" },
