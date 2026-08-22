@@ -123,10 +123,12 @@ const ART_PIECES = [
     credit: "Maggie Rogers, “Surrender”",
     file: "surrender-1.jpg",
     wordBank: [
-      { kaq: "nuk'u'x", en: "my heart" },
-      { kaq: "nuq'a'", en: "my hand" },
-      { kaq: "woyowal", en: "anger" },
-      { kaq: "ya'", en: "water" },
+      { kaq: "b'enäq", en: "in love", morph: "root only — no prefix" },
+      { kaq: "nuk'u'x", en: "my heart", morph: "nu- (my) + k'u'x (heart)" },
+      { kaq: "nuq'a'", en: "my hand", morph: "nu- (my) + q'a' (hand)" },
+      { kaq: "rub'aqil", en: "its bone", morph: "ru- (its) + b'aq (bone) + -il (noun suffix)" },
+      { kaq: "woyowal", en: "my anger", morph: "w- (my, before a vowel) + oyowal (anger)" },
+      { kaq: "ya'", en: "water", morph: "root only — no prefix" },
     ],
   },
   {
@@ -135,8 +137,9 @@ const ART_PIECES = [
     credit: "Maggie Rogers, “Surrender”",
     file: "surrender-2.jpg",
     wordBank: [
-      { kaq: "k'u'x", en: "heart" },
-      { kaq: "saqi'l", en: "light" },
+      { kaq: "k'u'x", en: "heart", morph: "root only — no prefix" },
+      { kaq: "q'ojom", en: "music / instrument", morph: "root only — no prefix" },
+      { kaq: "saqi'l", en: "light / brightness", morph: "saq (light) + -i'l (noun suffix)" },
     ],
   },
   {
@@ -145,10 +148,11 @@ const ART_PIECES = [
     credit: "Jhené Aiko, “Above and Beyond”",
     file: "above-and-beyond.jpg",
     wordBank: [
-      { kaq: "napaxij", en: "you break (it)" },
-      { kaq: "qitzij", en: "truth" },
-      { kaq: "wanima'", en: "your heart" },
-      { kaq: "wetaman", en: "I know" },
+      { kaq: "napaxij", en: "you break (it)", morph: "na- (incompletive) + paxij (root: to break)" },
+      { kaq: "qitzij", en: "truth", morph: "root only — no prefix" },
+      { kaq: "tob'ej", en: "to fight for / help", morph: "root only — no prefix" },
+      { kaq: "wanima'", en: "your heart", morph: "aw- (your, before a vowel) + anima' (heart)" },
+      { kaq: "wetaman", en: "I know", morph: "w- (I, before a vowel) + etaman (root: to know)" },
     ],
   },
   {
@@ -157,10 +161,11 @@ const ART_PIECES = [
     credit: "FKJ, Bas & Rikkat, “Risk”",
     file: "risk-fkj-bas.jpg",
     wordBank: [
-      { kaq: "ajaw", en: "god / lord" },
-      { kaq: "b'ix", en: "song" },
-      { kaq: "ch'umil", en: "star" },
-      { kaq: "juyu'", en: "mountain / land" },
+      { kaq: "ajaw", en: "god / lord", morph: "root only — no prefix" },
+      { kaq: "b'ix", en: "song", morph: "root only — no prefix" },
+      { kaq: "ch'umil", en: "star", morph: "root only — no prefix" },
+      { kaq: "juyu'", en: "mountain / land", morph: "root only — no prefix" },
+      { kaq: "winaqi'", en: "people", morph: "winaq (person) + -i' (plural)" },
     ],
   },
   {
@@ -169,10 +174,11 @@ const ART_PIECES = [
     credit: "Benny the Butcher & J. Cole, “Johnny P's Caddy”",
     file: "johnny-ps-caddy.jpg",
     wordBank: [
-      { kaq: "ala'", en: "boy" },
-      { kaq: "aq'a'", en: "night" },
-      { kaq: "koj", en: "lion" },
-      { kaq: "saqil", en: "light" },
+      { kaq: "ala'", en: "boy", morph: "root only — no prefix" },
+      { kaq: "aq'a'", en: "night", morph: "root only — no prefix" },
+      { kaq: "koj", en: "lion", morph: "root only — no prefix" },
+      { kaq: "qitzij", en: "truth", morph: "root only — no prefix" },
+      { kaq: "saqil", en: "light", morph: "saq (light) + -il (noun suffix)" },
     ],
   },
   {
@@ -181,9 +187,10 @@ const ART_PIECES = [
     credit: "EarthGang, “All Eyes on Me”",
     file: "all-eyes-on-me.jpg",
     wordBank: [
-      { kaq: "nub'ix", en: "my song" },
-      { kaq: "nujolom", en: "my head / mind" },
-      { kaq: "retaman", en: "she knows" },
+      { kaq: "nib'ixan", en: "she sings", morph: "ni- (incompletive) + b'ixan (root: to sing)" },
+      { kaq: "nub'ix", en: "my song", morph: "nu- (my) + b'ix (song)" },
+      { kaq: "nujolom", en: "my head / mind", morph: "nu- (my) + jolom (head)" },
+      { kaq: "retaman", en: "she knows", morph: "r- (she/he, before a vowel) + etaman (root: to know)" },
     ],
   },
   {
@@ -192,9 +199,10 @@ const ART_PIECES = [
     credit: "Michael Ondaatje (quote)",
     file: "ondaatje.jpg",
     wordBank: [
-      { kaq: "nuk'u'x", en: "my heart" },
-      { kaq: "näj", en: "far / a long time" },
-      { kaq: "wawe'", en: "here" },
+      { kaq: "näj", en: "far / a long time", morph: "root only — no prefix" },
+      { kaq: "nq'axon", en: "it hurts / aches", morph: "n- (incompletive) + q'axon (root: to hurt, to pass through)" },
+      { kaq: "nuk'u'x", en: "my heart", morph: "nu- (my) + k'u'x (heart)" },
+      { kaq: "wawe'", en: "here", morph: "root only — no prefix" },
     ],
   },
   {
@@ -203,8 +211,8 @@ const ART_PIECES = [
     credit: "Edward Hirsch, “Gabriel” (quote)",
     file: "gabriel-hirsch.jpg",
     wordBank: [
-      { kaq: "chwa'q", en: "morning" },
-      { kaq: "juna'", en: "year" },
+      { kaq: "chwa'q", en: "morning", morph: "root only — no prefix" },
+      { kaq: "juna'", en: "year", morph: "root only — no prefix" },
     ],
   },
   {
@@ -213,8 +221,9 @@ const ART_PIECES = [
     credit: "Maggie Rogers, “Light On”",
     file: "light-on.jpg",
     wordBank: [
-      { kaq: "nuk'u'x", en: "my heart" },
-      { kaq: "saqil", en: "light" },
+      { kaq: "jumul", en: "once / together", morph: "root only — no prefix" },
+      { kaq: "nuk'u'x", en: "my heart", morph: "nu- (my) + k'u'x (heart)" },
+      { kaq: "saqil", en: "light", morph: "saq (light) + -il (noun suffix)" },
     ],
   },
   {
@@ -223,9 +232,10 @@ const ART_PIECES = [
     credit: "Mac Miller, “Stay” / Xavier Rudd, “Ocean Floor”",
     file: "stay-mac-miller.jpg",
     wordBank: [
-      { kaq: "palow", en: "ocean / sea" },
-      { kaq: "wetaman", en: "I know" },
-      { kaq: "yab'e", en: "you go / leave" },
+      { kaq: "nab'ij", en: "you say", morph: "na- (incompletive) + b'ij (root: to say)" },
+      { kaq: "palow", en: "ocean / sea", morph: "root only — no prefix" },
+      { kaq: "wetaman", en: "I know", morph: "w- (I, before a vowel) + etaman (root: to know)" },
+      { kaq: "yab'e", en: "you go / leave", morph: "ya- (you, incompletive) + b'e (root: to go)" },
     ],
   },
 ];
@@ -242,14 +252,16 @@ function ArtPiece({ piece }) {
         <div className="breakdown">
           <div className="breakdown-title">Word bank</div>
           <p className="section-note" style={{ marginTop: 0 }}>
-            A few words from this piece, not in their original order —
-            Claude&rsquo;s best reading from context, not yet verified.
+            A few words from this piece, not in their original order, with
+            how each one is built (prefix + root) — Claude&rsquo;s best
+            reading from context, not yet verified.
           </p>
           <div className="word-bank">
             {piece.wordBank.map((w, i) => (
               <div className="word-bank-item" key={i}>
                 <span className="word-bank-kaq">{w.kaq}</span>
                 <span className="word-bank-en">{w.en}</span>
+                {w.morph && <span className="word-bank-morph">{w.morph}</span>}
               </div>
             ))}
           </div>
