@@ -126,7 +126,7 @@ const ART_PIECES = [
       { kaq: "b'enäq", en: "in love", morph: "root only — no prefix" },
       { kaq: "nuk'u'x", en: "my heart", morph: "nu- (my) + k'u'x (heart)" },
       { kaq: "nuq'a'", en: "my hand", morph: "nu- (my) + q'a' (hand)" },
-      { kaq: "rub'aqil", en: "its bone", morph: "ru- (its) + b'aq (bone) + -il (noun suffix)" },
+      { kaq: "rub'aqil", en: "the bone", morph: "ru- (usually 3rd person possessive 'its', but functioning here as 'the') + b'aqil (bone — b'aq is the root; -il may mark plural here, needs grammatical clarification)" },
       { kaq: "woyowal", en: "my anger", morph: "w- (my, before a vowel) + oyowal (anger)" },
       { kaq: "ya'", en: "water", morph: "root only — no prefix" },
     ],
@@ -251,11 +251,6 @@ function ArtPiece({ piece }) {
         <div className="citation">Lyrics/quote and photograph: see full piece above. Kaqchikel translation and photography by Abra Kinkopf.</div>
         <div className="breakdown">
           <div className="breakdown-title">Word bank</div>
-          <p className="section-note" style={{ marginTop: 0 }}>
-            A few words from this piece, not in their original order, with
-            how each one is built (prefix + root) — Claude&rsquo;s best
-            reading from context, not yet verified.
-          </p>
           <div className="word-bank">
             {piece.wordBank.map((w, i) => (
               <div className="word-bank-item" key={i}>
@@ -266,6 +261,345 @@ function ArtPiece({ piece }) {
             ))}
           </div>
         </div>
+      </div>
+    </details>
+  );
+}
+
+// A running log of grammar points flagged as uncertain across the site —
+// word banks, example sentences, anywhere a gloss or morphology note is a
+// best guess rather than confirmed. Backed by the `clarifications` table so
+// the archive keeper can add, edit, and resolve entries by signing in —
+// the same passcode/cookie system as the guess log above — with the change
+// showing up here immediately for everyone, since this panel is the only
+// place these notes live.
+function ClarificationSection() {
+  const [entries, setEntries] = useState([]);
+  const [isOwner, setIsOwner] = useState(false);
+  const [showKeeperForm, setShowKeeperForm] = useState(false);
+  const [passcode, setPasscode] = useState("");
+  const [keeperError, setKeeperError] = useState("");
+
+  const [editingId, setEditingId] = useState(null);
+  const [editSource, setEditSource] = useState("");
+  const [editItem, setEditItem] = useState("");
+  const [editNote, setEditNote] = useState("");
+  const [editBusy, setEditBusy] = useState(false);
+
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newSource, setNewSource] = useState("");
+  const [newItem, setNewItem] = useState("");
+  const [newNote, setNewNote] = useState("");
+  const [addBusy, setAddBusy] = useState(false);
+  const [addError, setAddError] = useState("");
+
+  async function loadEntries() {
+    try {
+      const res = await fetch("/api/clarifications");
+      const data = await res.json();
+      setEntries(data.entries || []);
+    } catch {
+      // quietly ignore — the panel just shows as empty until the API is reachable
+    }
+  }
+
+  useEffect(() => {
+    loadEntries();
+    fetch("/api/owner")
+      .then((r) => r.json())
+      .then((d) => setIsOwner(!!d.isOwner))
+      .catch(() => {});
+    const t = setInterval(loadEntries, 20000);
+    return () => clearInterval(t);
+  }, []);
+
+  async function signInAsKeeper(e) {
+    e.preventDefault();
+    setKeeperError("");
+    try {
+      const res = await fetch("/api/owner", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ passcode }),
+      });
+      if (!res.ok) {
+        setKeeperError("that passcode isn't right.");
+        return;
+      }
+      setIsOwner(true);
+      setShowKeeperForm(false);
+      setPasscode("");
+    } catch {
+      setKeeperError("couldn't sign in just now.");
+    }
+  }
+
+  async function signOutKeeper() {
+    try {
+      await fetch("/api/owner", { method: "DELETE" });
+    } catch {}
+    setIsOwner(false);
+  }
+
+  function startEdit(entry) {
+    setEditingId(entry.id);
+    setEditSource(entry.source);
+    setEditItem(entry.item);
+    setEditNote(entry.note);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+  }
+
+  async function saveEdit(id) {
+    setEditBusy(true);
+    try {
+      const res = await fetch(`/api/clarifications/${id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ source: editSource, item: editItem, note: editNote }),
+      });
+      if (res.ok) {
+        setEditingId(null);
+        await loadEntries();
+      }
+    } catch {} finally {
+      setEditBusy(false);
+    }
+  }
+
+  async function toggleResolved(entry) {
+    try {
+      const res = await fetch(`/api/clarifications/${entry.id}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ resolved: !entry.resolved }),
+      });
+      if (res.ok) await loadEntries();
+    } catch {}
+  }
+
+  async function deleteEntry(id) {
+    try {
+      const res = await fetch(`/api/clarifications/${id}`, { method: "DELETE" });
+      if (res.ok) await loadEntries();
+    } catch {}
+  }
+
+  async function submitNew(e) {
+    e.preventDefault();
+    if (!newSource.trim() || !newItem.trim() || !newNote.trim() || addBusy) return;
+    setAddBusy(true);
+    setAddError("");
+    try {
+      const res = await fetch("/api/clarifications", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ source: newSource, item: newItem, note: newNote }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAddError(data.error || "Something went wrong.");
+      } else {
+        setNewSource("");
+        setNewItem("");
+        setNewNote("");
+        setShowAddForm(false);
+        await loadEntries();
+      }
+    } catch {
+      setAddError("Couldn't reach the site just now.");
+    } finally {
+      setAddBusy(false);
+    }
+  }
+
+  const openCount = entries.filter((e) => !e.resolved).length;
+
+  return (
+    <details className="panel plan-panel">
+      <summary>
+        <div className="plan-summary-top">
+          <span className="panel-title">
+            <span className="plan-toggle-icon plan-toggle-closed">[+]</span>
+            <span className="plan-toggle-icon plan-toggle-open">[-]</span>{" "}
+            NEEDS CLARIFICATION
+          </span>
+          <span className="panel-count">{openCount} open</span>
+        </div>
+      </summary>
+      <div className="panel-body">
+        <p className="section-note">
+          Grammar and gloss points flagged as uncertain across the site,
+          kept in one place so they don&rsquo;t get lost. The archive keeper
+          can sign in below to add, fix, or resolve a note — since this is
+          the only place these live, a fix shows up here right away for
+          everyone, including other visitors already on the page within
+          about 20 seconds.
+        </p>
+
+        <div className="keeper-row">
+          {isOwner ? (
+            <span className="source-badge owner">
+              🔑 signed in as archive keeper —{" "}
+              <button type="button" className="link-btn" onClick={signOutKeeper}>
+                sign out
+              </button>
+            </span>
+          ) : showKeeperForm ? (
+            <form className="owner-gate" onSubmit={signInAsKeeper}>
+              <input
+                type="password"
+                placeholder="archive keeper passcode"
+                value={passcode}
+                onChange={(e) => setPasscode(e.target.value)}
+              />
+              <button type="submit" className="link-btn">
+                enter
+              </button>
+              {keeperError && <span className="keeper-error">{keeperError}</span>}
+            </form>
+          ) : (
+            <button
+              type="button"
+              className="link-btn"
+              onClick={() => setShowKeeperForm(true)}
+            >
+              sign in as archive keeper
+            </button>
+          )}
+        </div>
+
+        {entries.length === 0 ? (
+          <div className="empty-state">no open questions right now.</div>
+        ) : (
+          <div className="plan-list">
+            {entries.map((c) =>
+              editingId === c.id ? (
+                <div className="plan-item clarification-editing" key={c.id}>
+                  <span className={"plan-marker" + (c.resolved ? " done" : "")}></span>
+                  <span className="clarification-form">
+                    <input
+                      value={editSource}
+                      onChange={(e) => setEditSource(e.target.value)}
+                      placeholder="source (e.g. ART — word bank)"
+                    />
+                    <input
+                      value={editItem}
+                      onChange={(e) => setEditItem(e.target.value)}
+                      placeholder="word or phrase"
+                    />
+                    <textarea
+                      value={editNote}
+                      onChange={(e) => setEditNote(e.target.value)}
+                      placeholder="the note"
+                      rows={2}
+                    />
+                    <span className="clarification-actions">
+                      <button
+                        type="button"
+                        className="link-btn"
+                        disabled={editBusy}
+                        onClick={() => saveEdit(c.id)}
+                      >
+                        save
+                      </button>
+                      <button type="button" className="link-btn" onClick={cancelEdit}>
+                        cancel
+                      </button>
+                    </span>
+                  </span>
+                </div>
+              ) : (
+                <div className="plan-item" key={c.id}>
+                  <span className={"plan-marker" + (c.resolved ? " done" : "")}></span>
+                  <span>
+                    <span className="plan-step-label">
+                      {c.source} — {c.item}
+                      {c.resolved ? " (resolved)" : ""}
+                    </span>
+                    {c.note}
+                    {isOwner && (
+                      <span className="clarification-actions">
+                        <button
+                          type="button"
+                          className="link-btn"
+                          onClick={() => toggleResolved(c)}
+                        >
+                          {c.resolved ? "reopen" : "mark resolved"}
+                        </button>
+                        <button
+                          type="button"
+                          className="link-btn"
+                          onClick={() => startEdit(c)}
+                        >
+                          edit
+                        </button>
+                        <button
+                          type="button"
+                          className="link-btn"
+                          onClick={() => deleteEntry(c.id)}
+                        >
+                          remove
+                        </button>
+                      </span>
+                    )}
+                  </span>
+                </div>
+              )
+            )}
+          </div>
+        )}
+
+        {isOwner && (
+          <div className="clarification-add">
+            {showAddForm ? (
+              <form className="clarification-form" onSubmit={submitNew}>
+                <input
+                  value={newSource}
+                  onChange={(e) => setNewSource(e.target.value)}
+                  placeholder="source (e.g. ART — word bank)"
+                  maxLength={120}
+                />
+                <input
+                  value={newItem}
+                  onChange={(e) => setNewItem(e.target.value)}
+                  placeholder="word or phrase"
+                  maxLength={120}
+                />
+                <textarea
+                  value={newNote}
+                  onChange={(e) => setNewNote(e.target.value)}
+                  placeholder="the note"
+                  rows={2}
+                  maxLength={600}
+                />
+                <span className="clarification-actions">
+                  <button type="submit" className="link-btn" disabled={addBusy}>
+                    {addBusy ? "flagging…" : "flag it"}
+                  </button>
+                  <button
+                    type="button"
+                    className="link-btn"
+                    onClick={() => setShowAddForm(false)}
+                  >
+                    cancel
+                  </button>
+                </span>
+                {addError && <div className="empty-state">{addError}</div>}
+              </form>
+            ) : (
+              <button
+                type="button"
+                className="link-btn"
+                onClick={() => setShowAddForm(true)}
+              >
+                + flag a new question
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </details>
   );
@@ -1282,6 +1616,8 @@ export default function Home() {
       <ChildrenSongsSection />
 
       <ArtSection />
+
+      <ClarificationSection />
 
       <details className="panel plan-panel">
         <summary>
