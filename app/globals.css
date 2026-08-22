@@ -865,3 +865,45 @@ footer{
   border-top:none;
   color:var(--ink);
 }
+
+/* ART section: each piece is its own nested panel (image + word bank),
+   sitting inside the outer ART panel the same way audio collections
+   nest inside their own outer panel. */
+.art-piece{
+  margin-top:12px;
+  margin-left:8px;
+}
+.art-piece .panel-title{
+  font-size:13px;
+}
+.art-image{
+  display:block;
+  width:100%;
+  max-width:420px;
+  height:auto;
+  border:1px solid var(--line);
+  margin-top:4px;
+}
+.word-bank{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:8px;
+}
+.word-bank-item{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  border:1px solid var(--line);
+  padding:6px 10px;
+  min-width:110px;
+}
+.word-bank-kaq{
+  font-size:13px;
+  color:var(--ink);
+  font-weight:600;
+}
+.word-bank-en{
+  font-size:11.5px;
+  color:var(--ink-soft);
+}

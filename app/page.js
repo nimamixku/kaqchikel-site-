@@ -102,6 +102,186 @@ function TranslateBox() {
   );
 }
 
+function artSrc(filename) {
+  return "/art/" + encodeURIComponent(filename);
+}
+
+// Each art piece pairs a photograph with a Kaqchikel translation the user
+// wrote over/alongside someone else's song lyrics or a literary quote. The
+// lyric/quote text itself is never reproduced here as separate text (it's
+// copyrighted, and a translation of it is still a derivative of it) — the
+// full piece, in both languages, lives in the image. What IS reproduced is
+// a small "word bank": a handful of individual Kaqchikel words pulled out
+// and glossed on their own (not in the original line order), the same way
+// any of the standalone glossary entries elsewhere on this site work.
+// These glosses are Claude's best-guess reading from context, not a
+// verified dictionary source — treat them as a draft pending review.
+const ART_PIECES = [
+  {
+    key: "surrender-1",
+    title: "Untitled",
+    credit: "Maggie Rogers, “Surrender”",
+    file: "surrender-1.jpg",
+    wordBank: [
+      { kaq: "nuk'u'x", en: "my heart" },
+      { kaq: "nuq'a'", en: "my hand" },
+      { kaq: "woyowal", en: "anger" },
+      { kaq: "ya'", en: "water" },
+    ],
+  },
+  {
+    key: "surrender-2",
+    title: "Untitled",
+    credit: "Maggie Rogers, “Surrender”",
+    file: "surrender-2.jpg",
+    wordBank: [
+      { kaq: "k'u'x", en: "heart" },
+      { kaq: "saqi'l", en: "light" },
+    ],
+  },
+  {
+    key: "above-and-beyond",
+    title: "Untitled",
+    credit: "Jhené Aiko, “Above and Beyond”",
+    file: "above-and-beyond.jpg",
+    wordBank: [
+      { kaq: "napaxij", en: "you break (it)" },
+      { kaq: "qitzij", en: "truth" },
+      { kaq: "wanima'", en: "your heart" },
+      { kaq: "wetaman", en: "I know" },
+    ],
+  },
+  {
+    key: "risk-fkj-bas",
+    title: "Untitled",
+    credit: "FKJ, Bas & Rikkat, “Risk”",
+    file: "risk-fkj-bas.jpg",
+    wordBank: [
+      { kaq: "ajaw", en: "god / lord" },
+      { kaq: "b'ix", en: "song" },
+      { kaq: "ch'umil", en: "star" },
+      { kaq: "juyu'", en: "mountain / land" },
+    ],
+  },
+  {
+    key: "johnny-ps-caddy",
+    title: "Untitled",
+    credit: "Benny the Butcher & J. Cole, “Johnny P's Caddy”",
+    file: "johnny-ps-caddy.jpg",
+    wordBank: [
+      { kaq: "ala'", en: "boy" },
+      { kaq: "aq'a'", en: "night" },
+      { kaq: "koj", en: "lion" },
+      { kaq: "saqil", en: "light" },
+    ],
+  },
+  {
+    key: "all-eyes-on-me",
+    title: "Untitled",
+    credit: "EarthGang, “All Eyes on Me”",
+    file: "all-eyes-on-me.jpg",
+    wordBank: [
+      { kaq: "nub'ix", en: "my song" },
+      { kaq: "nujolom", en: "my head / mind" },
+      { kaq: "retaman", en: "she knows" },
+    ],
+  },
+  {
+    key: "ondaatje",
+    title: "Untitled",
+    credit: "Michael Ondaatje (quote)",
+    file: "ondaatje.jpg",
+    wordBank: [
+      { kaq: "nuk'u'x", en: "my heart" },
+      { kaq: "näj", en: "far / a long time" },
+      { kaq: "wawe'", en: "here" },
+    ],
+  },
+  {
+    key: "gabriel-hirsch",
+    title: "Untitled",
+    credit: "Edward Hirsch, “Gabriel” (quote)",
+    file: "gabriel-hirsch.jpg",
+    wordBank: [
+      { kaq: "chwa'q", en: "morning" },
+      { kaq: "juna'", en: "year" },
+    ],
+  },
+  {
+    key: "light-on",
+    title: "Untitled",
+    credit: "Maggie Rogers, “Light On”",
+    file: "light-on.jpg",
+    wordBank: [
+      { kaq: "nuk'u'x", en: "my heart" },
+      { kaq: "saqil", en: "light" },
+    ],
+  },
+  {
+    key: "stay-mac-miller",
+    title: "Untitled",
+    credit: "Mac Miller, “Stay” / Xavier Rudd, “Ocean Floor”",
+    file: "stay-mac-miller.jpg",
+    wordBank: [
+      { kaq: "palow", en: "ocean / sea" },
+      { kaq: "wetaman", en: "I know" },
+      { kaq: "yab'e", en: "you go / leave" },
+    ],
+  },
+];
+
+function ArtPiece({ piece }) {
+  return (
+    <details className="panel art-piece">
+      <summary>
+        <span className="panel-title">{piece.credit}</span>
+      </summary>
+      <div className="panel-body">
+        <img className="art-image" src={artSrc(piece.file)} alt={piece.credit} />
+        <div className="citation">Lyrics/quote and photograph: see full piece above. Kaqchikel translation and photography by Abra Kinkopf.</div>
+        <div className="breakdown">
+          <div className="breakdown-title">Word bank</div>
+          <p className="section-note" style={{ marginTop: 0 }}>
+            A few words from this piece, not in their original order —
+            Claude&rsquo;s best reading from context, not yet verified.
+          </p>
+          <div className="word-bank">
+            {piece.wordBank.map((w, i) => (
+              <div className="word-bank-item" key={i}>
+                <span className="word-bank-kaq">{w.kaq}</span>
+                <span className="word-bank-en">{w.en}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </details>
+  );
+}
+
+function ArtSection() {
+  return (
+    <details className="panel">
+      <summary>
+        <span className="panel-title">ART</span>
+        <span className="panel-count">{ART_PIECES.length} pieces</span>
+      </summary>
+      <div className="panel-body">
+        <p className="section-note">
+          A personal series translating song lyrics and quotes into
+          Kaqchikel, layered over photography. Each piece is shown in full
+          below; the lyric/quote text itself isn&rsquo;t reproduced
+          separately since it belongs to its original artist — only a small
+          word bank pulled from each piece is.
+        </p>
+        {ART_PIECES.map((piece) => (
+          <ArtPiece key={piece.key} piece={piece} />
+        ))}
+      </div>
+    </details>
+  );
+}
+
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz".split("");
 
 // Each audio collection is its own self-contained folder + file list.
@@ -1088,6 +1268,8 @@ export default function Home() {
       ))}
 
       <ChildrenSongsSection />
+
+      <ArtSection />
 
       <details className="panel plan-panel">
         <summary>
