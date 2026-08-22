@@ -914,9 +914,53 @@ footer{
   margin-top:2px;
   max-width:180px;
 }
+.word-bank-flag{
+  font-size:10.5px;
+  color:#8a5a00;
+  margin-top:4px;
+  padding-top:4px;
+  border-top:1px dashed var(--line);
+  max-width:180px;
+}
 
-/* NEEDS CLARIFICATION panel — reuses .keeper-row/.owner-gate/.plan-list from
-   the guess log and translation-model plan, plus a small add/edit form. */
+/* LANGUAGE AMENDMENTS panel — reuses .keeper-row/.owner-gate/.plan-list from
+   the guess log and translation-model plan, plus a small add/edit form. Each
+   question is its own nested details, collapsed by default, so a long list
+   doesn't take up space until someone opens the one they care about. */
+.amendment-list{
+  margin-top:6px;
+}
+.amendment-item{
+  margin-top:8px;
+  font-size:13px;
+}
+.amendment-item summary{
+  padding:9px 12px;
+  font-size:13px;
+}
+/* .amendment-item sits nested inside .panel.plan-panel's dark summary
+   styling, which would otherwise make this summary white-on-white and
+   block-level — override with matching specificity to restore normal
+   colors and the flex layout. */
+.panel.plan-panel .amendment-item summary{
+  display:flex;
+  color:var(--ink);
+}
+.panel.plan-panel .amendment-item summary:hover{
+  background:var(--line-soft);
+}
+.amendment-item .panel-title{
+  gap:9px;
+}
+.amendment-meta{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  white-space:nowrap;
+  margin-left:10px;
+}
+.amendment-item .panel-body{
+  padding:2px 12px 14px;
+}
 .clarification-actions{
   display:inline-flex;
   gap:10px;

@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 export async function GET() {
   try {
     const { rows: entries } = await query(
-      `select id, source, item, note, resolved, created_at, updated_at
+      `select id, source, item, question, note, resolved, created_at, updated_at
        from clarifications
        order by resolved asc, created_at desc`
     );
@@ -34,18 +34,19 @@ export async function POST(req) {
   const body = await req.json().catch(() => ({}));
   const source = (body?.source || "").trim();
   const item = (body?.item || "").trim();
+  const question = (body?.question || "").trim();
   const note = (body?.note || "").trim();
 
-  if (!source || !item || !note) {
+  if (!source || !item || !question || !note) {
     return NextResponse.json(
-      { error: "source, item, and note are all required." },
+      { error: "source, item, question, and note are all required." },
       { status: 400 }
     );
   }
 
   const { rows } = await query(
-    `insert into clarifications (source, item, note) values ($1, $2, $3) returning *`,
-    [source, item, note]
+    `insert into clarifications (source, item, question, note) values ($1, $2, $3, $4) returning *`,
+    [source, item, question, note]
   );
 
   return NextResponse.json({ entry: rows[0] });

@@ -126,7 +126,7 @@ const ART_PIECES = [
       { kaq: "b'enäq", en: "in love", morph: "root only — no prefix" },
       { kaq: "nuk'u'x", en: "my heart", morph: "nu- (my) + k'u'x (heart)" },
       { kaq: "nuq'a'", en: "my hand", morph: "nu- (my) + q'a' (hand)" },
-      { kaq: "rub'aqil", en: "the bone", morph: "ru- (usually 3rd person possessive 'its', but functioning here as 'the') + b'aqil (bone — b'aq is the root; -il may mark plural here, needs grammatical clarification)" },
+      { kaq: "rub'aqil", en: "the bone", morph: "ru- (usually 3rd person possessive 'its', but functioning here as 'the') + b'aqil (bone — b'aq is the root)" },
       { kaq: "woyowal", en: "my anger", morph: "w- (my, before a vowel) + oyowal (anger)" },
       { kaq: "ya'", en: "water", morph: "root only — no prefix" },
     ],
@@ -240,7 +240,15 @@ const ART_PIECES = [
   },
 ];
 
-function ArtPiece({ piece }) {
+// Matches a word-bank word against the shared LANGUAGE AMENDMENTS log, so a
+// flagged note shows up right where the word actually lives, not just in
+// the central log.
+function findAmendment(amendments, kaqWord) {
+  const target = kaqWord.trim().toLowerCase();
+  return amendments.find((a) => a.item.trim().toLowerCase() === target);
+}
+
+function ArtPiece({ piece, amendments }) {
   return (
     <details className="panel art-piece">
       <summary>
@@ -252,13 +260,21 @@ function ArtPiece({ piece }) {
         <div className="breakdown">
           <div className="breakdown-title">Word bank</div>
           <div className="word-bank">
-            {piece.wordBank.map((w, i) => (
-              <div className="word-bank-item" key={i}>
-                <span className="word-bank-kaq">{w.kaq}</span>
-                <span className="word-bank-en">{w.en}</span>
-                {w.morph && <span className="word-bank-morph">{w.morph}</span>}
-              </div>
-            ))}
+            {piece.wordBank.map((w, i) => {
+              const flagged = findAmendment(amendments, w.kaq);
+              return (
+                <div className="word-bank-item" key={i}>
+                  <span className="word-bank-kaq">{w.kaq}</span>
+                  <span className="word-bank-en">{w.en}</span>
+                  {w.morph && <span className="word-bank-morph">{w.morph}</span>}
+                  {flagged && (
+                    <span className="word-bank-flag">
+                      ⚑ {flagged.note}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -273,6 +289,100 @@ function ArtPiece({ piece }) {
 // the same passcode/cookie system as the guess log above — with the change
 // showing up here immediately for everyone, since this panel is the only
 // place these notes live.
+function AmendmentItem({
+  entry: c,
+  isOwner,
+  isEditing,
+  editSource,
+  editItem,
+  editQuestion,
+  editNote,
+  editBusy,
+  onStartEdit,
+  onCancelEdit,
+  onChangeEdit,
+  onSaveEdit,
+  onToggleResolved,
+  onDelete,
+}) {
+  return (
+    <details className="panel amendment-item">
+      <summary>
+        <span className="panel-title">
+          <span className={"plan-marker" + (c.resolved ? " done" : "")}></span>
+          {c.question}
+          {c.resolved ? " (resolved)" : ""}
+        </span>
+        <span className="panel-count amendment-meta">{c.item}</span>
+      </summary>
+      <div className="panel-body">
+        {isEditing ? (
+          <span className="clarification-form">
+            <input
+              value={editSource}
+              onChange={(e) => onChangeEdit("source", e.target.value)}
+              placeholder="source (e.g. ART — word bank)"
+            />
+            <input
+              value={editItem}
+              onChange={(e) => onChangeEdit("item", e.target.value)}
+              placeholder="exact word as it appears in a word bank"
+            />
+            <input
+              value={editQuestion}
+              onChange={(e) => onChangeEdit("question", e.target.value)}
+              placeholder="short lead-in, e.g. b'aq vs b'aqil — when to use"
+            />
+            <textarea
+              value={editNote}
+              onChange={(e) => onChangeEdit("note", e.target.value)}
+              placeholder="the fuller note"
+              rows={3}
+            />
+            <span className="clarification-actions">
+              <button
+                type="button"
+                className="link-btn"
+                disabled={editBusy}
+                onClick={onSaveEdit}
+              >
+                save
+              </button>
+              <button type="button" className="link-btn" onClick={onCancelEdit}>
+                cancel
+              </button>
+            </span>
+          </span>
+        ) : (
+          <>
+            <p className="section-note" style={{ marginTop: 0 }}>
+              {c.source} — {c.item}
+            </p>
+            <p className="section-note">{c.note}</p>
+            {isOwner && (
+              <span className="clarification-actions">
+                <button
+                  type="button"
+                  className="link-btn"
+                  onClick={() => onToggleResolved(c)}
+                >
+                  {c.resolved ? "reopen" : "mark resolved"}
+                </button>
+                <button type="button" className="link-btn" onClick={() => onStartEdit(c)}>
+                  edit
+                </button>
+                <button type="button" className="link-btn" onClick={() => onDelete(c.id)}>
+                  remove
+                </button>
+              </span>
+            )}
+          </>
+        )}
+      </div>
+    </details>
+  );
+}
+
 function ClarificationSection() {
   const [entries, setEntries] = useState([]);
   const [isOwner, setIsOwner] = useState(false);
@@ -283,12 +393,14 @@ function ClarificationSection() {
   const [editingId, setEditingId] = useState(null);
   const [editSource, setEditSource] = useState("");
   const [editItem, setEditItem] = useState("");
+  const [editQuestion, setEditQuestion] = useState("");
   const [editNote, setEditNote] = useState("");
   const [editBusy, setEditBusy] = useState(false);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [newSource, setNewSource] = useState("");
   const [newItem, setNewItem] = useState("");
+  const [newQuestion, setNewQuestion] = useState("");
   const [newNote, setNewNote] = useState("");
   const [addBusy, setAddBusy] = useState(false);
   const [addError, setAddError] = useState("");
@@ -345,6 +457,7 @@ function ClarificationSection() {
     setEditingId(entry.id);
     setEditSource(entry.source);
     setEditItem(entry.item);
+    setEditQuestion(entry.question);
     setEditNote(entry.note);
   }
 
@@ -352,13 +465,25 @@ function ClarificationSection() {
     setEditingId(null);
   }
 
-  async function saveEdit(id) {
+  function changeEdit(field, value) {
+    if (field === "source") setEditSource(value);
+    if (field === "item") setEditItem(value);
+    if (field === "question") setEditQuestion(value);
+    if (field === "note") setEditNote(value);
+  }
+
+  async function saveEdit() {
     setEditBusy(true);
     try {
-      const res = await fetch(`/api/clarifications/${id}`, {
+      const res = await fetch(`/api/clarifications/${editingId}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ source: editSource, item: editItem, note: editNote }),
+        body: JSON.stringify({
+          source: editSource,
+          item: editItem,
+          question: editQuestion,
+          note: editNote,
+        }),
       });
       if (res.ok) {
         setEditingId(null);
@@ -389,14 +514,26 @@ function ClarificationSection() {
 
   async function submitNew(e) {
     e.preventDefault();
-    if (!newSource.trim() || !newItem.trim() || !newNote.trim() || addBusy) return;
+    if (
+      !newSource.trim() ||
+      !newItem.trim() ||
+      !newQuestion.trim() ||
+      !newNote.trim() ||
+      addBusy
+    )
+      return;
     setAddBusy(true);
     setAddError("");
     try {
       const res = await fetch("/api/clarifications", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ source: newSource, item: newItem, note: newNote }),
+        body: JSON.stringify({
+          source: newSource,
+          item: newItem,
+          question: newQuestion,
+          note: newNote,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -404,6 +541,7 @@ function ClarificationSection() {
       } else {
         setNewSource("");
         setNewItem("");
+        setNewQuestion("");
         setNewNote("");
         setShowAddForm(false);
         await loadEntries();
@@ -424,7 +562,7 @@ function ClarificationSection() {
           <span className="panel-title">
             <span className="plan-toggle-icon plan-toggle-closed">[+]</span>
             <span className="plan-toggle-icon plan-toggle-open">[-]</span>{" "}
-            NEEDS CLARIFICATION
+            LANGUAGE AMENDMENTS
           </span>
           <span className="panel-count">{openCount} open</span>
         </div>
@@ -432,11 +570,14 @@ function ClarificationSection() {
       <div className="panel-body">
         <p className="section-note">
           Grammar and gloss points flagged as uncertain across the site,
-          kept in one place so they don&rsquo;t get lost. The archive keeper
-          can sign in below to add, fix, or resolve a note — since this is
-          the only place these live, a fix shows up here right away for
-          everyone, including other visitors already on the page within
-          about 20 seconds.
+          kept in one place so they don&rsquo;t get lost — click a question
+          to expand it. A flagged word also shows the same note right where
+          it lives — for example next to a word in the ART word banks (⚑) —
+          so it&rsquo;s not just buried here. The archive keeper can sign in
+          below to add, fix, or resolve a note — since this log is the
+          single source both places read from, a fix shows up everywhere
+          it&rsquo;s flagged right away for everyone, including other
+          visitors already on the page within about 20 seconds.
         </p>
 
         <div className="keeper-row">
@@ -474,81 +615,26 @@ function ClarificationSection() {
         {entries.length === 0 ? (
           <div className="empty-state">no open questions right now.</div>
         ) : (
-          <div className="plan-list">
-            {entries.map((c) =>
-              editingId === c.id ? (
-                <div className="plan-item clarification-editing" key={c.id}>
-                  <span className={"plan-marker" + (c.resolved ? " done" : "")}></span>
-                  <span className="clarification-form">
-                    <input
-                      value={editSource}
-                      onChange={(e) => setEditSource(e.target.value)}
-                      placeholder="source (e.g. ART — word bank)"
-                    />
-                    <input
-                      value={editItem}
-                      onChange={(e) => setEditItem(e.target.value)}
-                      placeholder="word or phrase"
-                    />
-                    <textarea
-                      value={editNote}
-                      onChange={(e) => setEditNote(e.target.value)}
-                      placeholder="the note"
-                      rows={2}
-                    />
-                    <span className="clarification-actions">
-                      <button
-                        type="button"
-                        className="link-btn"
-                        disabled={editBusy}
-                        onClick={() => saveEdit(c.id)}
-                      >
-                        save
-                      </button>
-                      <button type="button" className="link-btn" onClick={cancelEdit}>
-                        cancel
-                      </button>
-                    </span>
-                  </span>
-                </div>
-              ) : (
-                <div className="plan-item" key={c.id}>
-                  <span className={"plan-marker" + (c.resolved ? " done" : "")}></span>
-                  <span>
-                    <span className="plan-step-label">
-                      {c.source} — {c.item}
-                      {c.resolved ? " (resolved)" : ""}
-                    </span>
-                    {c.note}
-                    {isOwner && (
-                      <span className="clarification-actions">
-                        <button
-                          type="button"
-                          className="link-btn"
-                          onClick={() => toggleResolved(c)}
-                        >
-                          {c.resolved ? "reopen" : "mark resolved"}
-                        </button>
-                        <button
-                          type="button"
-                          className="link-btn"
-                          onClick={() => startEdit(c)}
-                        >
-                          edit
-                        </button>
-                        <button
-                          type="button"
-                          className="link-btn"
-                          onClick={() => deleteEntry(c.id)}
-                        >
-                          remove
-                        </button>
-                      </span>
-                    )}
-                  </span>
-                </div>
-              )
-            )}
+          <div className="amendment-list">
+            {entries.map((c) => (
+              <AmendmentItem
+                key={c.id}
+                entry={c}
+                isOwner={isOwner}
+                isEditing={editingId === c.id}
+                editSource={editSource}
+                editItem={editItem}
+                editQuestion={editQuestion}
+                editNote={editNote}
+                editBusy={editBusy}
+                onStartEdit={startEdit}
+                onCancelEdit={cancelEdit}
+                onChangeEdit={changeEdit}
+                onSaveEdit={saveEdit}
+                onToggleResolved={toggleResolved}
+                onDelete={deleteEntry}
+              />
+            ))}
           </div>
         )}
 
@@ -565,14 +651,20 @@ function ClarificationSection() {
                 <input
                   value={newItem}
                   onChange={(e) => setNewItem(e.target.value)}
-                  placeholder="word or phrase"
+                  placeholder="exact word as it appears in a word bank"
                   maxLength={120}
+                />
+                <input
+                  value={newQuestion}
+                  onChange={(e) => setNewQuestion(e.target.value)}
+                  placeholder="short lead-in, e.g. b'aq vs b'aqil — when to use"
+                  maxLength={160}
                 />
                 <textarea
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
-                  placeholder="the note"
-                  rows={2}
+                  placeholder="the fuller note"
+                  rows={3}
                   maxLength={600}
                 />
                 <span className="clarification-actions">
@@ -606,6 +698,26 @@ function ClarificationSection() {
 }
 
 function ArtSection() {
+  const [amendments, setAmendments] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    function load() {
+      fetch("/api/clarifications")
+        .then((r) => r.json())
+        .then((d) => {
+          if (!cancelled) setAmendments(d.entries || []);
+        })
+        .catch(() => {});
+    }
+    load();
+    const t = setInterval(load, 20000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, []);
+
   return (
     <details className="panel">
       <summary>
@@ -618,10 +730,11 @@ function ArtSection() {
           Kaqchikel, layered over photography. Each piece is shown in full
           below; the lyric/quote text itself isn&rsquo;t reproduced
           separately since it belongs to its original artist — only a small
-          word bank pulled from each piece is.
+          word bank pulled from each piece is. A flagged word (⚑) has an open
+          grammar question — see LANGUAGE AMENDMENTS below.
         </p>
         {ART_PIECES.map((piece) => (
-          <ArtPiece key={piece.key} piece={piece} />
+          <ArtPiece key={piece.key} piece={piece} amendments={amendments} />
         ))}
       </div>
     </details>

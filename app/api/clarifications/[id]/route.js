@@ -30,6 +30,10 @@ export async function PATCH(req, { params }) {
     fields.push(`item = $${i++}`);
     values.push(body.item.trim());
   }
+  if (typeof body.question === "string") {
+    fields.push(`question = $${i++}`);
+    values.push(body.question.trim());
+  }
   if (typeof body.note === "string") {
     fields.push(`note = $${i++}`);
     values.push(body.note.trim());
