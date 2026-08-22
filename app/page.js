@@ -268,9 +268,10 @@ function ArtPiece({ piece, amendments }) {
                   <span className="word-bank-en">{w.en}</span>
                   {w.morph && <span className="word-bank-morph">{w.morph}</span>}
                   {flagged && (
-                    <span className="word-bank-flag">
-                      ⚑ {flagged.note}
-                    </span>
+                    <details className="word-bank-flag">
+                      <summary>⚑ {flagged.question}</summary>
+                      <div className="word-bank-flag-note">{flagged.note}</div>
+                    </details>
                   )}
                 </div>
               );
