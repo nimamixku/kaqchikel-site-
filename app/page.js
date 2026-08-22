@@ -558,11 +558,6 @@ function ClarificationSection() {
 
   const openCount = entries.filter((e) => !e.resolved).length;
 
-  // Stay invisible until the clarifications table actually exists — no
-  // point showing an empty-looking panel before the one-time database
-  // migration has been run.
-  if (!ready) return null;
-
   return (
     <details className="panel plan-panel">
       <summary>

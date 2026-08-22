@@ -929,6 +929,9 @@ footer{
    doesn't take up space until someone opens the one they care about. */
 .amendment-list{
   margin-top:6px;
+  max-height:420px;
+  overflow-y:auto;
+  padding-right:4px;
 }
 .amendment-item{
   margin-top:8px;
