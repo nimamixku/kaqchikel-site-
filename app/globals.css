@@ -214,6 +214,35 @@ header p.desc{
   max-width:280px;
 }
 
+/* Archive keeper's inline rename box (Medical Terminology etc.) --
+   separate from LANGUAGE AMENDMENTS styling entirely. */
+.label-editor{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:8px;
+  flex-wrap:wrap;
+}
+.label-input{
+  flex:1;
+  min-width:180px;
+  padding:6px 8px;
+  background:#FFFFFF;
+  border:1px solid var(--line);
+  border-radius:0;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  color:var(--ink);
+}
+.label-input::placeholder{color:var(--ink-faint);}
+.label-editor .link-btn{
+  white-space:nowrap;
+}
+.label-editor .link-btn:disabled{
+  color:var(--ink-faint);
+  text-decoration:none;
+}
+
 .empty-state{
   text-align:center;
   padding:40px 20px;

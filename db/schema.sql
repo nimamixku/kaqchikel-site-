@@ -57,3 +57,26 @@ insert into clarifications (source, item, question, note)
 select 'EXAMPLE SENTENCES', 'chi', 'chi — what does it actually link to',
   'Suspect "chi" actually links to "that" for "nin-bij," not the word it''s currently matched to — unconfirmed.'
 where not exists (select 1 from clarifications where item = 'chi');
+
+-- Schema for live, on-site labeling of a freshly-added audio collection
+-- (e.g. Medical Terminology) whose clips still carry raw recorder
+-- timestamps instead of real names. This is a completely separate table
+-- from `clarifications` (LANGUAGE AMENDMENTS) -- nothing here reads from
+-- or writes to that table, and LANGUAGE AMENDMENTS' own behavior is
+-- unchanged. A label saved here is a string in the same
+-- "kaqchikel, español, english" format the archive already uses in
+-- filenames -- parsed and displayed the same way (see parseKaqchikelWord
+-- in lib/glossaryData.js) -- it just lives in the database so it can be
+-- edited straight from the site instead of requiring a rename + git push.
+-- The archive keeper can also still rename the actual file the normal
+-- way; either path works; a saved label here just takes display priority.
+create table if not exists audio_labels (
+  id bigserial primary key,
+  folder_name text not null,
+  filename text not null,
+  label text not null default '',
+  updated_at timestamptz not null default now(),
+  unique (folder_name, filename)
+);
+
+create index if not exists audio_labels_folder_idx on audio_labels (folder_name);

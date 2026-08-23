@@ -303,6 +303,17 @@ function findAmendment(amendments, kaqWord) {
   );
 }
 
+// Looks up a live-saved label for a raw audio file (see audio_labels /
+// /api/audio-labels). Entirely separate from LANGUAGE AMENDMENTS/
+// findAmendment above -- this is for naming/renaming a clip, not flagging
+// a question about one.
+function findAudioLabel(audioLabels, folderName, filename) {
+  const row = audioLabels.find(
+    (l) => l.folderName === folderName && l.filename === filename
+  );
+  return row?.label || "";
+}
+
 // Opens the LANGUAGE AMENDMENTS panel and the one matching entry inside it,
 // then scrolls that entry into view — so clicking a flagged word takes you
 // straight to its actual amendment instead of just repeating the note.
@@ -855,6 +866,80 @@ function renderKaqchikelWordItem(fn, folderName, i, amendments) {
   );
 }
 
+// Renders one Medical Terminology clip. A saved live label (see
+// audio_labels / /api/audio-labels) takes display priority over the raw
+// filename; falling back to the raw filename means an unrenamed clip
+// just shows its recorder timestamp, same as before this existed. The
+// inline rename box only ever shows for the archive keeper, and it has
+// nothing to do with LANGUAGE AMENDMENTS -- naming a clip isn't a
+// flagged question, so nothing here touches that log.
+function MedicalTermItem(fn, folderName, i, amendments, { audioLabels, isOwner, saveAudioLabel }) {
+  const savedLabel = findAudioLabel(audioLabels, folderName, fn);
+  const effective = savedLabel || fn.replace(/\.m4a$/i, "");
+  const { headword, spanish, english } = parseKaqchikelWord(effective + ".m4a");
+
+  return (
+    <div className="entry" key={i}>
+      <div className="entry-head">
+        <span className="headword">{headword}</span>
+      </div>
+      {(spanish || english) && (
+        <div className="definition">
+          {spanish}
+          {spanish && english ? " · " : ""}
+          {english}
+        </div>
+      )}
+      <PronunciationNote word={headword} />
+      <NotedFlag amendments={amendments} word={headword} />
+      <audio className="entry-audio" controls src={audioSrc(folderName, fn)}>
+        Tu navegador no admite la reproducción de audio.
+      </audio>
+      {isOwner && (
+        <AudioRenameBox
+          savedLabel={savedLabel}
+          onSave={(label) => saveAudioLabel(fn, label)}
+        />
+      )}
+    </div>
+  );
+}
+
+// The archive keeper's inline rename control -- kept as its own small
+// component so it owns its own draft/saving state independent of
+// whatever's rendered above it.
+function AudioRenameBox({ savedLabel, onSave }) {
+  const [draft, setDraft] = useState(savedLabel);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setDraft(savedLabel);
+  }, [savedLabel]);
+
+  return (
+    <div className="label-editor">
+      <input
+        type="text"
+        className="label-input"
+        placeholder="kaqchikel, español, english"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+      />
+      <button
+        type="button"
+        className="link-btn"
+        disabled={saving || draft.trim() === savedLabel}
+        onClick={() => {
+          setSaving(true);
+          onSave(draft.trim()).finally(() => setSaving(false));
+        }}
+      >
+        {saving ? "saving…" : savedLabel ? "update name" : "save name"}
+      </button>
+    </div>
+  );
+}
+
 // Each audio collection is its own self-contained folder + file list.
 // To add a new one later: add a files array above (like intakeFiles),
 // then add one entry here with its folder name, title, and description.
@@ -884,12 +969,12 @@ const audioCollections = [
     key: "medical-terminology",
     title: "MEDICAL TERMINOLOGY (AUDIO)",
     description:
-      "Recorded 2021-07-22 — freshly added and still being labeled. A clip showing its recorder timestamp instead of a word hasn't been transcribed yet; each one gets its real Kaqchikel/Spanish/English name as soon as it's identified.",
+      "Each one gets its real Kaqchikel/Spanish/English name as soon as it's identified.",
     folderName: "Medical Terminology",
     files: medicalTerminologyFiles,
     searchPlaceholder: "buscar una palabra o frase…",
     emptyMessage: "ninguna palabra coincide con tu búsqueda.",
-    renderItem: renderKaqchikelWordItem,
+    renderItem: MedicalTermItem,
   },
 ];
 
@@ -1340,6 +1425,8 @@ function AudioCollection({
 }) {
   const [q, setQ] = useState("");
   const [amendments, setAmendments] = useState([]);
+  const [audioLabels, setAudioLabels] = useState([]);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     fetch("/api/clarifications")
@@ -1347,6 +1434,42 @@ function AudioCollection({
       .then((d) => setAmendments(d.entries || []))
       .catch(() => {});
   }, []);
+
+  // Unrelated to LANGUAGE AMENDMENTS above -- this is the live on-site
+  // rename/label feature (see /api/audio-labels). Cheap no-op for
+  // collections that never use it, so it's fetched here once rather than
+  // duplicated per renderItem.
+  useEffect(() => {
+    fetch("/api/audio-labels")
+      .then((r) => r.json())
+      .then((d) => setAudioLabels(d.labels || []))
+      .catch(() => {});
+    fetch("/api/owner")
+      .then((r) => r.json())
+      .then((d) => setIsOwner(!!d.isOwner))
+      .catch(() => {});
+  }, []);
+
+  function saveAudioLabel(filename, label) {
+    return fetch("/api/audio-labels", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ folderName, filename, label }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.ok) {
+          setAudioLabels((prev) => {
+            const next = prev.filter(
+              (l) => !(l.folderName === folderName && l.filename === filename)
+            );
+            next.push({ folderName, filename, label });
+            return next;
+          });
+        }
+        return d;
+      });
+  }
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -1384,7 +1507,11 @@ function AudioCollection({
           )}
           {filtered.map((fn, i) =>
             renderItem ? (
-              renderItem(fn, folderName, i, amendments)
+              renderItem(fn, folderName, i, amendments, {
+                audioLabels,
+                isOwner,
+                saveAudioLabel,
+              })
             ) : (
               <div className="intake-item" key={i}>
                 <div className="intake-title">{spanishTitle(fn)}</div>
