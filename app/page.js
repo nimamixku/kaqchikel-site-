@@ -68,7 +68,7 @@ function PronunciationNote({ word, source, isOwner }) {
           className="pronunciation-flag"
           onClick={() => requestAmendment(source || "pronunciation guide", word)}
         >
-          <FlagClothIcon /> flag this word's pronunciation
+          <FlagClothIcon /> note this word's pronunciation
         </button>
       )}
     </div>
@@ -677,16 +677,16 @@ function ClarificationSection() {
       </summary>
       <div className="panel-body">
         <p className="section-note">
-          Grammar and gloss points flagged as uncertain across the site,
-          kept in one place so they don&rsquo;t get lost — click a question
-          to expand it. A flagged word also shows the same note right where
-          it lives — for example next to a word in the ART word banks
+          Grammar and gloss points noted as uncertain across the site, kept
+          in one place so they don&rsquo;t get lost — click a question to
+          expand it. A word noted this way also shows the same note right
+          where it lives — for example next to a word in the ART word banks
           (marked with a little <FlagClothIcon /> cloth icon) — so it&rsquo;s
           not just buried here. The archive keeper can sign in below to add,
           fix, or resolve a note — since this log is the single source both
-          places read from, a fix shows up everywhere it&rsquo;s flagged
-          right away for everyone, including other visitors already on the
-          page within about 20 seconds.
+          places read from, a fix shows up everywhere it&rsquo;s noted right
+          away for everyone, including other visitors already on the page
+          within about 20 seconds.
         </p>
 
         <div className="keeper-row">
@@ -778,7 +778,7 @@ function ClarificationSection() {
                 />
                 <span className="clarification-actions">
                   <button type="submit" className="link-btn" disabled={addBusy}>
-                    {addBusy ? "flagging…" : "flag it"}
+                    {addBusy ? "noting…" : "note it"}
                   </button>
                   <button
                     type="button"
@@ -796,7 +796,7 @@ function ClarificationSection() {
                 className="link-btn"
                 onClick={() => setShowAddForm(true)}
               >
-                + flag a new question
+                + note a new question
               </button>
             )}
           </div>
@@ -874,7 +874,7 @@ const audioCollections = [
     key: "kaqchikel-words",
     title: "KAQCHIKEL WORDS & PHRASES (AUDIO)",
     description:
-      "The small gray note under each word is a pronunciation cue, generated from Kaqchikel's standard spelling rules — a draft, not yet checked against a fluent speaker's ear. Flag anything off in LANGUAGE AMENDMENTS above.",
+      "The small gray note under each word is a pronunciation cue, generated from Kaqchikel's standard spelling rules — a draft, not yet checked against a fluent speaker's ear. Note anything off in LANGUAGE AMENDMENTS above.",
     folderName: "Kaqchikel Words",
     files: kaqchikelWordFiles,
     searchPlaceholder: "buscar una palabra o frase…",
@@ -1831,7 +1831,7 @@ export default function Home() {
           <p className="section-note">
             Small gray notes under a word are pronunciation cues, generated
             from Kaqchikel's standard spelling rules — a draft, not yet
-            checked against a fluent speaker's ear. Flag anything off in
+            checked against a fluent speaker's ear. Note anything off in
             LANGUAGE AMENDMENTS above.
           </p>
           <div className="controls">
