@@ -1243,9 +1243,15 @@ function BusIcon({ size = 30 }) {
       aria-hidden="true"
     >
       <g transform="translate(40,0) scale(-1,1)">
-      <rect x="1" y="4" width="34" height="14" rx="2" fill="#b8272c" stroke="#2b2b2b" strokeWidth="0.6" />
-      <rect x="1" y="9.5" width="34" height="3" fill="#f0c14b" />
-      <path d="M35 6 L39 9 L39 15 L35 15 Z" fill="#e8ddc7" stroke="#2b2b2b" strokeWidth="0.6" />
+      <rect x="1" y="4" width="34" height="14" rx="2" fill="#ecdfc0" stroke="#2b2b2b" strokeWidth="0.6" />
+      <rect x="1" y="9.2" width="34" height="0.7" fill="#f0c14b" />
+      <rect x="1" y="9.9" width="34" height="2.6" fill="#b8272c" />
+      <rect x="1" y="12.5" width="34" height="0.7" fill="#f0c14b" />
+      <path d="M35 6 L39 9 L39 15 L35 15 Z" fill="#ecdfc0" stroke="#2b2b2b" strokeWidth="0.6" />
+      <line x1="35.6" y1="8.6" x2="38.6" y2="8.6" stroke="#9a9a9a" strokeWidth="0.5" />
+      <line x1="35.6" y1="10.6" x2="38.8" y2="10.6" stroke="#9a9a9a" strokeWidth="0.5" />
+      <line x1="35.6" y1="12.6" x2="38.8" y2="12.6" stroke="#9a9a9a" strokeWidth="0.5" />
+      <line x1="35.6" y1="14.4" x2="38.6" y2="14.4" stroke="#9a9a9a" strokeWidth="0.5" />
       <rect x="36.4" y="11" width="2.2" height="3.4" rx="0.4" fill="#8f8f8f" />
       <rect x="4" y="6.3" width="5.5" height="3.4" rx="0.4" fill="#1a2238" />
       <rect x="11" y="6.3" width="5.5" height="3.4" rx="0.4" fill="#1a2238" />
@@ -1261,6 +1267,18 @@ function BusIcon({ size = 30 }) {
       <circle cx="29" cy="19.5" r="3.2" fill="#1a1a1a" />
       <circle cx="29" cy="19.5" r="1.3" fill="#e2e2e2" />
       </g>
+      <text
+        x="18"
+        y="17.7"
+        fontSize="2.3"
+        fontFamily="Arial, sans-serif"
+        fontWeight="700"
+        fill="#7a1f1a"
+        textAnchor="middle"
+        letterSpacing="-0.05"
+      >
+        ANA CECILIA
+      </text>
     </svg>
   );
 }
