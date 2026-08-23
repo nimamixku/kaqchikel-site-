@@ -958,9 +958,11 @@ footer{
   text-decoration:underline;
   cursor:pointer;
 }
-/* Little woven-cloth swatch used in place of a flag glyph, wherever a note
-   can be flagged for amendment (pronunciation cues, ART word-bank items,
-   the LANGUAGE AMENDMENTS intro text). */
+/* Little woven-cloth swatch (an original illustration, not a photo) used in
+   place of a flag glyph, wherever a note can be flagged for amendment
+   (pronunciation cues, ART word-bank items, the LANGUAGE AMENDMENTS intro
+   text). Straight horizontal bands only, echoing the site's textile
+   photos' color scheme -- gold, purple, black, orange, red. */
 .flag-cloth-icon{
   display:inline-block;
   width:12px;
@@ -968,7 +970,6 @@ footer{
   border-radius:2px;
   vertical-align:-2px;
   margin-right:1px;
-  object-fit:cover;
 }
 
 /* LANGUAGE AMENDMENTS panel — reuses .keeper-row/.owner-gate/.plan-list from
@@ -1040,4 +1041,75 @@ footer{
 }
 .clarification-editing{
   align-items:flex-start;
+}
+
+/* Site-wide custom cursor — a little camioneta (Guatemalan "chicken bus")
+   that follows the pointer, with a soft dust-puff flash on click. Same
+   technique as the cross cursor on the other sites: a fixed-position div
+   moved via direct DOM writes in JS, native cursor hidden everywhere while
+   active. Mouse/trackpad only -- SiteCursor itself no-ops on touch. */
+.site-cursor{
+  position:fixed;
+  top:0;
+  left:0;
+  width:34px;
+  height:22px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.2s ease;
+  z-index:9999;
+  will-change:transform;
+}
+.site-cursor.visible{
+  opacity:1;
+}
+.site-cursor-glow{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  background:radial-gradient(circle, #FFFFFF 0%, #F1F2F0 35%, rgba(255,255,255,0.35) 60%, rgba(255,255,255,0) 78%);
+  filter:blur(3px);
+  opacity:0;
+  transform:translate(-50%,-50%) scale(0.5);
+}
+.site-cursor-glow.puff{
+  animation:site-cursor-puff 0.65s ease-out;
+}
+@keyframes site-cursor-puff{
+  0%{ opacity:0; transform:translate(-50%,-50%) scale(0.45); }
+  18%{ opacity:0.9; transform:translate(-50%,-50%) scale(1.05); }
+  45%{ opacity:0.65; transform:translate(-50%,-50%) scale(0.85); }
+  100%{ opacity:0; transform:translate(-50%,-50%) scale(0.55); }
+}
+.bus-cursor-icon{
+  position:relative;
+  display:block;
+  shape-rendering:crispEdges;
+  filter:drop-shadow(0 1px 0.5px rgba(0,0,0,0.45));
+  animation:site-cursor-pulse 2.2s ease-in-out infinite;
+}
+@keyframes site-cursor-pulse{
+  0%,100%{ transform:scale(1); }
+  50%{ transform:scale(1.08); }
+}
+body.custom-cursor-active, body.custom-cursor-active *{cursor:none !important;}
+/* Native <audio> controls render their play/scrubber/volume UI in a
+   browser shadow root that the `*` rule above can't reach, so without
+   this they'd fall back to the system pointer/hand on hover. Force the
+   same cursor:none there so the custom bus cursor never gets interrupted
+   while interacting with any of this site's many audio players. */
+body.custom-cursor-active audio,
+body.custom-cursor-active audio::-webkit-media-controls-panel,
+body.custom-cursor-active audio::-webkit-media-controls-play-button,
+body.custom-cursor-active audio::-webkit-media-controls-timeline,
+body.custom-cursor-active audio::-webkit-media-controls-current-time-display,
+body.custom-cursor-active audio::-webkit-media-controls-time-remaining-display,
+body.custom-cursor-active audio::-webkit-media-controls-mute-button,
+body.custom-cursor-active audio::-webkit-media-controls-volume-slider,
+body.custom-cursor-active audio::-webkit-media-controls-volume-slider-container,
+body.custom-cursor-active audio::-webkit-media-controls-overflow-button{
+  cursor:none !important;
 }

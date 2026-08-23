@@ -28,12 +28,21 @@ function spanishTitle(filename) {
 // design instead of a generic flag glyph.
 function FlagClothIcon() {
   return (
-    <img
-      src="/images/icons/flag-cloth.png"
-      alt=""
+    <svg
       className="flag-cloth-icon"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-    />
+    >
+      <rect x="0" y="0" width="24" height="24" fill="#1a1a1a" />
+      <rect x="1" y="1" width="22" height="4" fill="#f0c14b" />
+      <rect x="1" y="5" width="22" height="2" fill="#7a1f3d" />
+      <rect x="1" y="7" width="22" height="5" fill="#6b2d5c" />
+      <rect x="1" y="12" width="22" height="2" fill="#f0c14b" />
+      <rect x="1" y="14" width="22" height="4" fill="#1a1a1a" />
+      <rect x="1" y="18" width="22" height="1.5" fill="#e2762e" />
+      <rect x="1" y="19.5" width="22" height="3.5" fill="#b8272c" />
+    </svg>
   );
 }
 
@@ -1218,6 +1227,108 @@ function AudioSignalIcon() {
   );
 }
 
+// A small original illustration of a Guatemalan camioneta ("chicken bus") —
+// drawn from scratch in the same bright red/gold/cream palette as the real
+// buses, not traced from any photo, so it's safe to ship on the site.
+function BusIcon({ size = 30 }) {
+  const w = size;
+  const h = size * 0.62;
+  return (
+    <svg
+      className="bus-cursor-icon"
+      width={w}
+      height={h}
+      viewBox="0 0 40 25"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <g transform="translate(40,0) scale(-1,1)">
+      <rect x="1" y="4" width="34" height="14" rx="2" fill="#b8272c" stroke="#2b2b2b" strokeWidth="0.6" />
+      <rect x="1" y="9.5" width="34" height="3" fill="#f0c14b" />
+      <path d="M35 6 L39 9 L39 15 L35 15 Z" fill="#e8ddc7" stroke="#2b2b2b" strokeWidth="0.6" />
+      <rect x="36.4" y="11" width="2.2" height="3.4" rx="0.4" fill="#8f8f8f" />
+      <rect x="4" y="6.3" width="5.5" height="3.4" rx="0.4" fill="#1a2238" />
+      <rect x="11" y="6.3" width="5.5" height="3.4" rx="0.4" fill="#1a2238" />
+      <rect x="18" y="6.3" width="5.5" height="3.4" rx="0.4" fill="#1a2238" />
+      <rect x="25" y="6.3" width="5.5" height="3.4" rx="0.4" fill="#1a2238" />
+      <rect x="0" y="2.2" width="30" height="1.4" fill="#2b2b2b" />
+      <rect x="2" y="0.6" width="1.2" height="2" fill="#2b2b2b" />
+      <rect x="10" y="0.6" width="1.2" height="2" fill="#2b2b2b" />
+      <rect x="18" y="0.6" width="1.2" height="2" fill="#2b2b2b" />
+      <rect x="26" y="0.6" width="1.2" height="2" fill="#2b2b2b" />
+      <circle cx="8" cy="19.5" r="3.2" fill="#1a1a1a" />
+      <circle cx="8" cy="19.5" r="1.3" fill="#e2e2e2" />
+      <circle cx="29" cy="19.5" r="3.2" fill="#1a1a1a" />
+      <circle cx="29" cy="19.5" r="1.3" fill="#e2e2e2" />
+      </g>
+    </svg>
+  );
+}
+
+// Site-wide custom cursor — a little camioneta that follows the pointer,
+// with a soft dust-puff flash on click. Same technique as the cross cursor
+// on the other sites: direct DOM writes (not React state) so it tracks the
+// pointer smoothly, native cursor hidden via body.custom-cursor-active,
+// fine-pointer (mouse) devices only.
+function SiteCursor() {
+  const cursorRef = useRef(null);
+  const glowRef = useRef(null);
+
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      !window.matchMedia ||
+      !window.matchMedia("(pointer: fine)").matches
+    ) {
+      return;
+    }
+
+    const cursorEl = cursorRef.current;
+    const glowEl = glowRef.current;
+    if (!cursorEl || !glowEl) return;
+
+    function handleMove(e) {
+      cursorEl.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+    }
+    function show() {
+      cursorEl.classList.add("visible");
+    }
+    function hide() {
+      cursorEl.classList.remove("visible");
+    }
+    function handleClick() {
+      glowEl.classList.remove("puff");
+      void glowEl.offsetWidth;
+      glowEl.classList.add("puff");
+    }
+    function clearPuff() {
+      glowEl.classList.remove("puff");
+    }
+
+    document.body.classList.add("custom-cursor-active");
+    document.addEventListener("mousemove", handleMove);
+    document.addEventListener("click", handleClick);
+    document.documentElement.addEventListener("mouseenter", show);
+    document.documentElement.addEventListener("mouseleave", hide);
+    glowEl.addEventListener("animationend", clearPuff);
+    return () => {
+      document.body.classList.remove("custom-cursor-active");
+      document.removeEventListener("mousemove", handleMove);
+      document.removeEventListener("click", handleClick);
+      document.documentElement.removeEventListener("mouseenter", show);
+      document.documentElement.removeEventListener("mouseleave", hide);
+      glowEl.removeEventListener("animationend", clearPuff);
+    };
+  }, []);
+
+  return (
+    <div className="site-cursor" ref={cursorRef} aria-hidden="true">
+      <div className="site-cursor-glow" ref={glowRef}></div>
+      <BusIcon size={30} />
+    </div>
+  );
+}
+
 function AudioCollection({
   title,
   description,
@@ -1629,6 +1740,8 @@ export default function Home() {
 
   return (
     <div className="wrap">
+      <SiteCursor />
+
       <header>
         <div className="eyebrow">// community language archive</div>
         <h1>
