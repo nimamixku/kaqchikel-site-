@@ -7,6 +7,7 @@ import {
   intakeFiles,
   parseKaqchikelWord,
   searchTranslations,
+  pronunciationNotes,
 } from "../lib/glossaryData";
 
 function audioSrc(folderName, filename) {
@@ -20,6 +21,23 @@ function spanishTitle(filename) {
     return parts[0].trim();
   }
   return raw;
+}
+
+// Renders the rule-based pronunciation cues for a headword, if it has any.
+// Shared across the glossary, the Kaqchikel Words audio collection, and the
+// ART word banks -- one draft, generated the same way everywhere.
+function PronunciationNote({ word }) {
+  const notes = pronunciationNotes(word);
+  if (!notes.length) return null;
+  return (
+    <div className="pronunciation-note">
+      {notes.map((n, i) => (
+        <span key={i} className="pronunciation-cue">
+          {n}
+        </span>
+      ))}
+    </div>
+  );
 }
 
 function normalizeLetter(word) {
@@ -279,6 +297,7 @@ function ArtPiece({ piece, amendments }) {
                 <div className="word-bank-item" key={i}>
                   <span className="word-bank-kaq">{w.kaq}</span>
                   <span className="word-bank-en">{w.en}</span>
+                  <PronunciationNote word={w.kaq} />
                   {w.morph && <span className="word-bank-morph">{w.morph}</span>}
                   {flagged && (
                     <a
@@ -775,6 +794,8 @@ const audioCollections = [
   {
     key: "kaqchikel-words",
     title: "KAQCHIKEL WORDS & PHRASES (AUDIO)",
+    description:
+      "The small gray note under each word is a pronunciation cue, generated from Kaqchikel's standard spelling rules — a draft, not yet checked against a fluent speaker's ear. Flag anything off in LANGUAGE AMENDMENTS above.",
     folderName: "Kaqchikel Words",
     files: kaqchikelWordFiles,
     searchPlaceholder: "buscar una palabra o frase…",
@@ -793,6 +814,7 @@ const audioCollections = [
               {english}
             </div>
           )}
+          <PronunciationNote word={headword} />
           <audio
             className="entry-audio"
             controls
@@ -1585,6 +1607,12 @@ export default function Home() {
           <span className="panel-count">{entries.length} words</span>
         </summary>
         <div className="panel-body">
+          <p className="section-note">
+            Small gray notes under a word are pronunciation cues, generated
+            from Kaqchikel's standard spelling rules — a draft, not yet
+            checked against a fluent speaker's ear. Flag anything off in
+            LANGUAGE AMENDMENTS above.
+          </p>
           <div className="controls">
             <div className="search-field">
               <input
@@ -1628,6 +1656,7 @@ export default function Home() {
                     {e.literal && (
                       <div className="literal-note">{e.literal}</div>
                     )}
+                    <PronunciationNote word={e.headword} />
                     {e.audio && (
                       <audio className="entry-audio" controls src={`/audio/${e.audio}`}>
                         Your browser doesn't support audio playback.

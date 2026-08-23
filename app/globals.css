@@ -914,6 +914,27 @@ footer{
   margin-top:2px;
   max-width:180px;
 }
+
+/* Rule-based pronunciation cues -- shared by the glossary, the Kaqchikel
+   Words audio collection, and ART word banks. Kept small/faint since it's
+   a supplementary note, not primary content, same treatment as morph. */
+.pronunciation-note{
+  display:flex;
+  flex-direction:column;
+  gap:1px;
+  margin-top:4px;
+  max-width:320px;
+}
+.pronunciation-cue{
+  font-size:11px;
+  color:var(--ink-faint);
+}
+.word-bank-item .pronunciation-note{
+  max-width:180px;
+}
+.word-bank-item .pronunciation-cue{
+  font-size:10.5px;
+}
 .word-bank-flag{
   display:block;
   margin-top:4px;
