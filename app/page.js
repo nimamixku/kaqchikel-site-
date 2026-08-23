@@ -25,8 +25,11 @@ function spanishTitle(filename) {
 
 // Renders the rule-based pronunciation cues for a headword, if it has any.
 // Shared across the glossary, the Kaqchikel Words audio collection, and the
-// ART word banks -- one draft, generated the same way everywhere.
-function PronunciationNote({ word }) {
+// ART word banks -- one draft, generated the same way everywhere. While
+// signed in as archive keeper, a small flag link opens LANGUAGE AMENDMENTS
+// pre-filled with this exact word, so any cue can be corrected without
+// retyping it by hand.
+function PronunciationNote({ word, source, isOwner }) {
   const notes = pronunciationNotes(word);
   if (!notes.length) return null;
   return (
@@ -36,6 +39,15 @@ function PronunciationNote({ word }) {
           {n}
         </span>
       ))}
+      {isOwner && (
+        <button
+          type="button"
+          className="pronunciation-flag"
+          onClick={() => requestAmendment(source || "pronunciation guide", word)}
+        >
+          ⚑ flag this word's pronunciation
+        </button>
+      )}
     </div>
   );
 }
@@ -279,7 +291,20 @@ function jumpToAmendment(id) {
   }
 }
 
-function ArtPiece({ piece, amendments }) {
+// Lets any word elsewhere on the site (a pronunciation cue, a word bank —
+// anywhere a note could turn out to need fixing) open a pre-filled "flag a
+// new question" form in LANGUAGE AMENDMENTS, instead of the archive keeper
+// needing to retype the source/word by hand. ClarificationSection wires the
+// actual handler in while it's mounted; this is just the bridge to it.
+let requestAmendmentHandler = null;
+function requestAmendment(source, item) {
+  const panel = document.getElementById("language-amendments");
+  if (panel) panel.open = true;
+  if (requestAmendmentHandler) requestAmendmentHandler(source, item);
+  panel?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function ArtPiece({ piece, amendments, isOwner }) {
   return (
     <details className="panel art-piece">
       <summary>
@@ -297,7 +322,11 @@ function ArtPiece({ piece, amendments }) {
                 <div className="word-bank-item" key={i}>
                   <span className="word-bank-kaq">{w.kaq}</span>
                   <span className="word-bank-en">{w.en}</span>
-                  <PronunciationNote word={w.kaq} />
+                  <PronunciationNote
+                    word={w.kaq}
+                    source="ART — word bank"
+                    isOwner={isOwner}
+                  />
                   {w.morph && <span className="word-bank-morph">{w.morph}</span>}
                   {flagged && (
                     <a
@@ -465,6 +494,20 @@ function ClarificationSection() {
       .catch(() => {});
     const t = setInterval(loadEntries, 20000);
     return () => clearInterval(t);
+  }, []);
+
+  // Lets a flag button anywhere else on the page (e.g. next to a
+  // pronunciation cue) open the add-new-question form already filled in
+  // with that word, instead of the archive keeper retyping it here.
+  useEffect(() => {
+    requestAmendmentHandler = (source, item) => {
+      setShowAddForm(true);
+      setNewSource(source);
+      setNewItem(item);
+    };
+    return () => {
+      requestAmendmentHandler = null;
+    };
   }, []);
 
   async function signInAsKeeper(e) {
@@ -741,6 +784,7 @@ function ClarificationSection() {
 
 function ArtSection() {
   const [amendments, setAmendments] = useState([]);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -753,6 +797,12 @@ function ArtSection() {
         .catch(() => {});
     }
     load();
+    fetch("/api/owner")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled) setIsOwner(!!d.isOwner);
+      })
+      .catch(() => {});
     const t = setInterval(load, 20000);
     return () => {
       cancelled = true;
@@ -768,7 +818,12 @@ function ArtSection() {
       </summary>
       <div className="panel-body">
         {ART_PIECES.map((piece) => (
-          <ArtPiece key={piece.key} piece={piece} amendments={amendments} />
+          <ArtPiece
+            key={piece.key}
+            piece={piece}
+            amendments={amendments}
+            isOwner={isOwner}
+          />
         ))}
       </div>
     </details>
@@ -800,7 +855,7 @@ const audioCollections = [
     files: kaqchikelWordFiles,
     searchPlaceholder: "buscar una palabra o frase…",
     emptyMessage: "ninguna palabra coincide con tu búsqueda.",
-    renderItem: (fn, folderName, i) => {
+    renderItem: (fn, folderName, i, isOwner) => {
       const { headword, spanish, english } = parseKaqchikelWord(fn);
       return (
         <div className="entry" key={i}>
@@ -814,7 +869,11 @@ const audioCollections = [
               {english}
             </div>
           )}
-          <PronunciationNote word={headword} />
+          <PronunciationNote
+            word={headword}
+            source="Kaqchikel Words audio"
+            isOwner={isOwner}
+          />
           <audio
             className="entry-audio"
             controls
@@ -1154,6 +1213,14 @@ function AudioCollection({
   renderItem,
 }) {
   const [q, setQ] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/owner")
+      .then((r) => r.json())
+      .then((d) => setIsOwner(!!d.isOwner))
+      .catch(() => {});
+  }, []);
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -1191,7 +1258,7 @@ function AudioCollection({
           )}
           {filtered.map((fn, i) =>
             renderItem ? (
-              renderItem(fn, folderName, i)
+              renderItem(fn, folderName, i, isOwner)
             ) : (
               <div className="intake-item" key={i}>
                 <div className="intake-title">{spanishTitle(fn)}</div>
@@ -1514,6 +1581,14 @@ function LearningLog() {
 
 export default function Home() {
   const [query, setQuery] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/owner")
+      .then((r) => r.json())
+      .then((d) => setIsOwner(!!d.isOwner))
+      .catch(() => {});
+  }, []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -1656,7 +1731,11 @@ export default function Home() {
                     {e.literal && (
                       <div className="literal-note">{e.literal}</div>
                     )}
-                    <PronunciationNote word={e.headword} />
+                    <PronunciationNote
+                      word={e.headword}
+                      source="GLOSSARY"
+                      isOwner={isOwner}
+                    />
                     {e.audio && (
                       <audio className="entry-audio" controls src={`/audio/${e.audio}`}>
                         Your browser doesn't support audio playback.
