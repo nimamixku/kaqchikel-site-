@@ -9,6 +9,11 @@
   --accent:#000000;
 }
 *{box-sizing:border-box;}
+/* Only two cursors exist on this site: the plain system arrow, or the
+   camioneta (via the footer toggle). Browsers show a hand over links by
+   default even with no CSS at all, so this overrides that everywhere,
+   current links and any added later. */
+a, button, summary, [role="button"]{cursor:default;}
 html{scroll-behavior:smooth;}
 body{
   margin:0;
@@ -66,7 +71,7 @@ header p.desc{
 }
 .panel summary{
   list-style:none;
-  cursor:pointer;
+  cursor:default;
   padding:14px 16px;
   display:flex;
   justify-content:space-between;
@@ -149,6 +154,7 @@ header p.desc{
   color:var(--ink-soft);
   text-decoration:none;
   border:1px solid transparent;
+  cursor:default;
 }
 .alpha-strip a:hover{border-color:var(--line);color:var(--accent);}
 .alpha-strip a.disabled{color:var(--ink-faint);opacity:0.35;pointer-events:none;}
@@ -539,7 +545,7 @@ header p.desc{
   color:var(--ink);
   font-size:12px;
   line-height:1;
-  cursor:pointer;
+  cursor:default;
   font-family:'IBM Plex Mono',monospace;
 }
 .song-player-play:hover{
@@ -573,7 +579,7 @@ header p.desc{
   font-family:'IBM Plex Mono',monospace;
   font-size:12px;
   padding:6px 10px;
-  cursor:pointer;
+  cursor:default;
 }
 .song-player-track:hover{
   border-color:var(--accent);
@@ -606,7 +612,7 @@ header p.desc{
   color:var(--ink);
   font-size:16px;
   line-height:1;
-  cursor:pointer;
+  cursor:default;
   font-family:'IBM Plex Mono',monospace;
 }
 .songbook-controls button:hover:not(:disabled){
@@ -687,7 +693,7 @@ footer{
   background:var(--ink);
   color:#fff;
   border:1px solid var(--ink);
-  cursor:pointer;
+  cursor:default;
 }
 .guess-submit:hover:not(:disabled){opacity:0.85;}
 .guess-submit:disabled{opacity:0.4;cursor:default;}
@@ -710,7 +716,7 @@ footer{
   text-decoration:underline;
   font-family:'IBM Plex Mono',monospace;
   font-size:12px;
-  cursor:pointer;
+  cursor:default;
 }
 .owner-gate{
   display:flex;
@@ -739,7 +745,7 @@ footer{
   letter-spacing:0.03em;
   text-transform:uppercase;
   color:#fff;
-  cursor:pointer;
+  cursor:default;
   border-radius:2px;
 }
 .log-toggle:hover{background:#222;}
@@ -949,7 +955,7 @@ footer{
   font-size:10.5px;
   color:#8a5a00;
   text-decoration:underline;
-  cursor:pointer;
+  cursor:default;
 }
 /* Little woven-cloth swatch (an original illustration, not a photo) used in
    place of a flag glyph, wherever a note can be flagged for amendment
