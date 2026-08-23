@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import kaqchikelWordFiles from "./kaqchikelWordFiles.json";
+import medicalTerminologyFiles from "./medicalTerminologyFiles.json";
 import {
   entries,
   intakeFiles,
@@ -821,6 +822,39 @@ function ArtSection() {
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz".split("");
 
+// Shared by any collection whose filenames follow the archive's usual
+// "kaqchikel, español, english.m4a" convention (see parseKaqchikelWord in
+// lib/glossaryData.js) -- a file that hasn't been renamed to that format
+// yet (e.g. still a raw recorder timestamp) just falls back to showing
+// that raw name as the headword until it's renamed, with no separate
+// "unlabeled" state or extra code needed.
+function renderKaqchikelWordItem(fn, folderName, i, amendments) {
+  const { headword, spanish, english } = parseKaqchikelWord(fn);
+  return (
+    <div className="entry" key={i}>
+      <div className="entry-head">
+        <span className="headword">{headword}</span>
+      </div>
+      {(spanish || english) && (
+        <div className="definition">
+          {spanish}
+          {spanish && english ? " · " : ""}
+          {english}
+        </div>
+      )}
+      <PronunciationNote word={headword} />
+      <NotedFlag amendments={amendments} word={headword} />
+      <audio
+        className="entry-audio"
+        controls
+        src={audioSrc(folderName, fn)}
+      >
+        Tu navegador no admite la reproducción de audio.
+      </audio>
+    </div>
+  );
+}
+
 // Each audio collection is its own self-contained folder + file list.
 // To add a new one later: add a files array above (like intakeFiles),
 // then add one entry here with its folder name, title, and description.
@@ -844,32 +878,18 @@ const audioCollections = [
     files: kaqchikelWordFiles,
     searchPlaceholder: "buscar una palabra o frase…",
     emptyMessage: "ninguna palabra coincide con tu búsqueda.",
-    renderItem: (fn, folderName, i, amendments) => {
-      const { headword, spanish, english } = parseKaqchikelWord(fn);
-      return (
-        <div className="entry" key={i}>
-          <div className="entry-head">
-            <span className="headword">{headword}</span>
-          </div>
-          {(spanish || english) && (
-            <div className="definition">
-              {spanish}
-              {spanish && english ? " · " : ""}
-              {english}
-            </div>
-          )}
-          <PronunciationNote word={headword} />
-          <NotedFlag amendments={amendments} word={headword} />
-          <audio
-            className="entry-audio"
-            controls
-            src={audioSrc(folderName, fn)}
-          >
-            Tu navegador no admite la reproducción de audio.
-          </audio>
-        </div>
-      );
-    },
+    renderItem: renderKaqchikelWordItem,
+  },
+  {
+    key: "medical-terminology",
+    title: "MEDICAL TERMINOLOGY (AUDIO)",
+    description:
+      "Recorded 2021-07-22 — freshly added and still being labeled. A clip showing its recorder timestamp instead of a word hasn't been transcribed yet; each one gets its real Kaqchikel/Spanish/English name as soon as it's identified.",
+    folderName: "Medical Terminology",
+    files: medicalTerminologyFiles,
+    searchPlaceholder: "buscar una palabra o frase…",
+    emptyMessage: "ninguna palabra coincide con tu búsqueda.",
+    renderItem: renderKaqchikelWordItem,
   },
 ];
 
