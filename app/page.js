@@ -23,6 +23,20 @@ function spanishTitle(filename) {
   return raw;
 }
 
+// A little woven-cloth swatch, standing in for the flag icon anywhere a
+// note can be flagged for amendment -- a small nod to Kaqchikel textile
+// design instead of a generic flag glyph.
+function FlagClothIcon() {
+  return (
+    <img
+      src="/images/icons/flag-cloth.png"
+      alt=""
+      className="flag-cloth-icon"
+      aria-hidden="true"
+    />
+  );
+}
+
 // Renders the rule-based pronunciation cues for a headword, if it has any.
 // Shared across the glossary, the Kaqchikel Words audio collection, and the
 // ART word banks -- one draft, generated the same way everywhere. While
@@ -45,7 +59,7 @@ function PronunciationNote({ word, source, isOwner }) {
           className="pronunciation-flag"
           onClick={() => requestAmendment(source || "pronunciation guide", word)}
         >
-          ⚑ flag this word's pronunciation
+          <FlagClothIcon /> flag this word's pronunciation
         </button>
       )}
     </div>
@@ -337,7 +351,7 @@ function ArtPiece({ piece, amendments, isOwner }) {
                         jumpToAmendment(flagged.id);
                       }}
                     >
-                      ⚑ {flagged.question}
+                      <FlagClothIcon /> {flagged.question}
                     </a>
                   )}
                 </div>
@@ -657,12 +671,13 @@ function ClarificationSection() {
           Grammar and gloss points flagged as uncertain across the site,
           kept in one place so they don&rsquo;t get lost — click a question
           to expand it. A flagged word also shows the same note right where
-          it lives — for example next to a word in the ART word banks (⚑) —
-          so it&rsquo;s not just buried here. The archive keeper can sign in
-          below to add, fix, or resolve a note — since this log is the
-          single source both places read from, a fix shows up everywhere
-          it&rsquo;s flagged right away for everyone, including other
-          visitors already on the page within about 20 seconds.
+          it lives — for example next to a word in the ART word banks
+          (marked with a little <FlagClothIcon /> cloth icon) — so it&rsquo;s
+          not just buried here. The archive keeper can sign in below to add,
+          fix, or resolve a note — since this log is the single source both
+          places read from, a fix shows up everywhere it&rsquo;s flagged
+          right away for everyone, including other visitors already on the
+          page within about 20 seconds.
         </p>
 
         <div className="keeper-row">
