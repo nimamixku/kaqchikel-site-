@@ -48,11 +48,11 @@ function FlagClothIcon() {
 
 // Renders the rule-based pronunciation cues for a headword, if it has any.
 // Shared across the glossary, the Kaqchikel Words audio collection, and the
-// ART word banks -- one draft, generated the same way everywhere. While
-// signed in as archive keeper, a small flag link opens LANGUAGE AMENDMENTS
-// pre-filled with this exact word, so any cue can be corrected without
-// retyping it by hand.
-function PronunciationNote({ word, source, isOwner }) {
+// ART word banks -- one draft, generated the same way everywhere. No note
+// link here on its own -- a word only shows one once it's actually been
+// noted through LANGUAGE AMENDMENTS (see NotedFlag below), so the page
+// doesn't read as if every single word were already flagged.
+function PronunciationNote({ word }) {
   const notes = pronunciationNotes(word);
   if (!notes.length) return null;
   return (
@@ -62,15 +62,6 @@ function PronunciationNote({ word, source, isOwner }) {
           {n}
         </span>
       ))}
-      {isOwner && (
-        <button
-          type="button"
-          className="pronunciation-flag"
-          onClick={() => requestAmendment(source || "pronunciation guide", word)}
-        >
-          <FlagClothIcon /> note this word's pronunciation
-        </button>
-      )}
     </div>
   );
 }
@@ -294,11 +285,16 @@ const ART_PIECES = [
 ];
 
 // Matches a word-bank word against the shared LANGUAGE AMENDMENTS log, so a
-// flagged note shows up right where the word actually lives, not just in
-// the central log.
+// noted word shows up right where it actually lives, not just in the
+// central log. Only matches OPEN entries -- once the archive keeper marks
+// one resolved, the inline note disappears from wherever the word lives,
+// while the entry itself stays in the log below (marked "resolved") as a
+// record instead of being deleted.
 function findAmendment(amendments, kaqWord) {
   const target = kaqWord.trim().toLowerCase();
-  return amendments.find((a) => a.item.trim().toLowerCase() === target);
+  return amendments.find(
+    (a) => !a.resolved && a.item.trim().toLowerCase() === target
+  );
 }
 
 // Opens the LANGUAGE AMENDMENTS panel and the one matching entry inside it,
@@ -314,20 +310,28 @@ function jumpToAmendment(id) {
   }
 }
 
-// Lets any word elsewhere on the site (a pronunciation cue, a word bank —
-// anywhere a note could turn out to need fixing) open a pre-filled "flag a
-// new question" form in LANGUAGE AMENDMENTS, instead of the archive keeper
-// needing to retype the source/word by hand. ClarificationSection wires the
-// actual handler in while it's mounted; this is just the bridge to it.
-let requestAmendmentHandler = null;
-function requestAmendment(source, item) {
-  const panel = document.getElementById("language-amendments");
-  if (panel) panel.open = true;
-  if (requestAmendmentHandler) requestAmendmentHandler(source, item);
-  panel?.scrollIntoView({ behavior: "smooth", block: "start" });
+// Shows a note link for a word only when it's actually been noted through
+// LANGUAGE AMENDMENTS (i.e. there's a matching entry) -- never a generic
+// "note this" button on every word, which would make the whole site look
+// flagged. Clicking it jumps straight to that entry.
+function NotedFlag({ amendments, word }) {
+  const flagged = findAmendment(amendments, word);
+  if (!flagged) return null;
+  return (
+    <a
+      href={`#amendment-${flagged.id}`}
+      className="word-bank-flag"
+      onClick={(e) => {
+        e.preventDefault();
+        jumpToAmendment(flagged.id);
+      }}
+    >
+      <FlagClothIcon /> {flagged.question}
+    </a>
+  );
 }
 
-function ArtPiece({ piece, amendments, isOwner }) {
+function ArtPiece({ piece, amendments }) {
   return (
     <details className="panel art-piece">
       <summary>
@@ -339,33 +343,15 @@ function ArtPiece({ piece, amendments, isOwner }) {
         <div className="breakdown">
           <div className="breakdown-title">Word bank</div>
           <div className="word-bank">
-            {piece.wordBank.map((w, i) => {
-              const flagged = findAmendment(amendments, w.kaq);
-              return (
-                <div className="word-bank-item" key={i}>
-                  <span className="word-bank-kaq">{w.kaq}</span>
-                  <span className="word-bank-en">{w.en}</span>
-                  <PronunciationNote
-                    word={w.kaq}
-                    source="ART — word bank"
-                    isOwner={isOwner}
-                  />
-                  {w.morph && <span className="word-bank-morph">{w.morph}</span>}
-                  {flagged && (
-                    <a
-                      href={`#amendment-${flagged.id}`}
-                      className="word-bank-flag"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        jumpToAmendment(flagged.id);
-                      }}
-                    >
-                      <FlagClothIcon /> {flagged.question}
-                    </a>
-                  )}
-                </div>
-              );
-            })}
+            {piece.wordBank.map((w, i) => (
+              <div className="word-bank-item" key={i}>
+                <span className="word-bank-kaq">{w.kaq}</span>
+                <span className="word-bank-en">{w.en}</span>
+                <PronunciationNote word={w.kaq} />
+                {w.morph && <span className="word-bank-morph">{w.morph}</span>}
+                <NotedFlag amendments={amendments} word={w.kaq} />
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -517,20 +503,6 @@ function ClarificationSection() {
       .catch(() => {});
     const t = setInterval(loadEntries, 20000);
     return () => clearInterval(t);
-  }, []);
-
-  // Lets a flag button anywhere else on the page (e.g. next to a
-  // pronunciation cue) open the add-new-question form already filled in
-  // with that word, instead of the archive keeper retyping it here.
-  useEffect(() => {
-    requestAmendmentHandler = (source, item) => {
-      setShowAddForm(true);
-      setNewSource(source);
-      setNewItem(item);
-    };
-    return () => {
-      requestAmendmentHandler = null;
-    };
   }, []);
 
   async function signInAsKeeper(e) {
@@ -808,7 +780,6 @@ function ClarificationSection() {
 
 function ArtSection() {
   const [amendments, setAmendments] = useState([]);
-  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -821,12 +792,6 @@ function ArtSection() {
         .catch(() => {});
     }
     load();
-    fetch("/api/owner")
-      .then((r) => r.json())
-      .then((d) => {
-        if (!cancelled) setIsOwner(!!d.isOwner);
-      })
-      .catch(() => {});
     const t = setInterval(load, 20000);
     return () => {
       cancelled = true;
@@ -842,12 +807,7 @@ function ArtSection() {
       </summary>
       <div className="panel-body">
         {ART_PIECES.map((piece) => (
-          <ArtPiece
-            key={piece.key}
-            piece={piece}
-            amendments={amendments}
-            isOwner={isOwner}
-          />
+          <ArtPiece key={piece.key} piece={piece} amendments={amendments} />
         ))}
       </div>
     </details>
@@ -879,7 +839,7 @@ const audioCollections = [
     files: kaqchikelWordFiles,
     searchPlaceholder: "buscar una palabra o frase…",
     emptyMessage: "ninguna palabra coincide con tu búsqueda.",
-    renderItem: (fn, folderName, i, isOwner) => {
+    renderItem: (fn, folderName, i, amendments) => {
       const { headword, spanish, english } = parseKaqchikelWord(fn);
       return (
         <div className="entry" key={i}>
@@ -893,11 +853,8 @@ const audioCollections = [
               {english}
             </div>
           )}
-          <PronunciationNote
-            word={headword}
-            source="Kaqchikel Words audio"
-            isOwner={isOwner}
-          />
+          <PronunciationNote word={headword} />
+          <NotedFlag amendments={amendments} word={headword} />
           <audio
             className="entry-audio"
             controls
@@ -1357,12 +1314,12 @@ function AudioCollection({
   renderItem,
 }) {
   const [q, setQ] = useState("");
-  const [isOwner, setIsOwner] = useState(false);
+  const [amendments, setAmendments] = useState([]);
 
   useEffect(() => {
-    fetch("/api/owner")
+    fetch("/api/clarifications")
       .then((r) => r.json())
-      .then((d) => setIsOwner(!!d.isOwner))
+      .then((d) => setAmendments(d.entries || []))
       .catch(() => {});
   }, []);
 
@@ -1402,7 +1359,7 @@ function AudioCollection({
           )}
           {filtered.map((fn, i) =>
             renderItem ? (
-              renderItem(fn, folderName, i, isOwner)
+              renderItem(fn, folderName, i, amendments)
             ) : (
               <div className="intake-item" key={i}>
                 <div className="intake-title">{spanishTitle(fn)}</div>
@@ -1725,12 +1682,12 @@ function LearningLog() {
 
 export default function Home() {
   const [query, setQuery] = useState("");
-  const [isOwner, setIsOwner] = useState(false);
+  const [amendments, setAmendments] = useState([]);
 
   useEffect(() => {
-    fetch("/api/owner")
+    fetch("/api/clarifications")
       .then((r) => r.json())
-      .then((d) => setIsOwner(!!d.isOwner))
+      .then((d) => setAmendments(d.entries || []))
       .catch(() => {});
   }, []);
 
@@ -1877,11 +1834,8 @@ export default function Home() {
                     {e.literal && (
                       <div className="literal-note">{e.literal}</div>
                     )}
-                    <PronunciationNote
-                      word={e.headword}
-                      source="GLOSSARY"
-                      isOwner={isOwner}
-                    />
+                    <PronunciationNote word={e.headword} />
+                    <NotedFlag amendments={amendments} word={e.headword} />
                     {e.audio && (
                       <audio className="entry-audio" controls src={`/audio/${e.audio}`}>
                         Your browser doesn't support audio playback.

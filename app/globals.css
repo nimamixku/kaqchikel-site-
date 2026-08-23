@@ -935,18 +935,6 @@ footer{
 .word-bank-item .pronunciation-cue{
   font-size:10.5px;
 }
-.pronunciation-flag{
-  align-self:flex-start;
-  margin-top:2px;
-  background:none;
-  border:none;
-  padding:0;
-  color:#8a5a00;
-  text-decoration:underline;
-  font-family:'IBM Plex Mono',monospace;
-  font-size:10.5px;
-  cursor:pointer;
-}
 .word-bank-flag{
   display:block;
   margin-top:4px;
