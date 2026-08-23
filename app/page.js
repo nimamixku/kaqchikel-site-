@@ -1268,9 +1268,9 @@ function BusIcon({ size = 30 }) {
       <circle cx="29" cy="19.5" r="1.3" fill="#e2e2e2" />
       </g>
       <text
-        x="18"
-        y="17.7"
-        fontSize="2.3"
+        x="22"
+        y="17.9"
+        fontSize="2.9"
         fontFamily="Arial, sans-serif"
         fontWeight="700"
         fill="#7a1f1a"
