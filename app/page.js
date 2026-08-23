@@ -10,9 +10,9 @@ import {
   pronunciationNotes,
 } from "../lib/glossaryData";
 
-// Site-wide custom cursor (the little camioneta) -- off for now, back to
-// the normal system arrow. Flip this to true to bring it back; all the
-// BusIcon/SiteCursor code below stays as-is either way.
+// Default state of the bus-cursor toggle for a first-time visitor (no
+// saved choice yet). Each visitor can flip it themselves via the footer
+// toggle below -- their pick is remembered on their own device only.
 const CUSTOM_CURSOR_ENABLED = false;
 
 function audioSrc(folderName, filename) {
@@ -1688,6 +1688,7 @@ function LearningLog() {
 export default function Home() {
   const [query, setQuery] = useState("");
   const [amendments, setAmendments] = useState([]);
+  const [busCursor, setBusCursor] = useState(CUSTOM_CURSOR_ENABLED);
 
   useEffect(() => {
     fetch("/api/clarifications")
@@ -1695,6 +1696,26 @@ export default function Home() {
       .then((d) => setAmendments(d.entries || []))
       .catch(() => {});
   }, []);
+
+  // Each visitor's own choice of cursor, remembered on their device only
+  // (not a site-wide setting) -- starts from CUSTOM_CURSOR_ENABLED's
+  // default the first time, then whatever they last picked.
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("busCursor");
+      if (saved !== null) setBusCursor(saved === "true");
+    } catch {}
+  }, []);
+
+  function toggleBusCursor() {
+    setBusCursor((prev) => {
+      const next = !prev;
+      try {
+        window.localStorage.setItem("busCursor", String(next));
+      } catch {}
+      return next;
+    });
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -1720,7 +1741,7 @@ export default function Home() {
 
   return (
     <div className="wrap">
-      {CUSTOM_CURSOR_ENABLED && <SiteCursor />}
+      {busCursor && <SiteCursor />}
 
       <header>
         <div className="eyebrow">// community language archive</div>
@@ -2136,6 +2157,13 @@ export default function Home() {
           Data collection: Abra Kinkopf. Speakers: MHML &amp; MJML. Written
           translations: Abra, MHML, and MJML.
         </div>
+        <button
+          type="button"
+          className="link-btn cursor-toggle"
+          onClick={toggleBusCursor}
+        >
+          {busCursor ? "using the camioneta cursor — switch back to the arrow" : "🚌 try the camioneta cursor"}
+        </button>
       </footer>
     </div>
   );

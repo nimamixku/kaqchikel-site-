@@ -649,6 +649,11 @@ footer{
   margin-top:8px;
   font-style:italic;
 }
+.cursor-toggle{
+  display:block;
+  margin-top:10px;
+  font-size:11px;
+}
 
 /* ---- Learning Log: a separate, clearly-experimental public feature.
    Dashed border keeps it visually distinct from the real, verified
