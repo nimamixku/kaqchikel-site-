@@ -1269,8 +1269,10 @@ function SiteCursor() {
 
     function handleMove(e) {
       cursorEl.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
-    }
-    function show() {
+      // Tied to actual movement, not a mouseenter event -- toggling the
+      // cursor on while the mouse is already over the page (e.g. clicking
+      // the footer toggle) still shows it on the very next move, with no
+      // refresh needed.
       cursorEl.classList.add("visible");
     }
     function hide() {
@@ -1288,14 +1290,12 @@ function SiteCursor() {
     document.body.classList.add("custom-cursor-active");
     document.addEventListener("mousemove", handleMove);
     document.addEventListener("click", handleClick);
-    document.documentElement.addEventListener("mouseenter", show);
     document.documentElement.addEventListener("mouseleave", hide);
     glowEl.addEventListener("animationend", clearPuff);
     return () => {
       document.body.classList.remove("custom-cursor-active");
       document.removeEventListener("mousemove", handleMove);
       document.removeEventListener("click", handleClick);
-      document.documentElement.removeEventListener("mouseenter", show);
       document.documentElement.removeEventListener("mouseleave", hide);
       glowEl.removeEventListener("animationend", clearPuff);
     };
