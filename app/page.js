@@ -10,6 +10,11 @@ import {
   pronunciationNotes,
 } from "../lib/glossaryData";
 
+// Site-wide custom cursor (the little camioneta) -- off for now, back to
+// the normal system arrow. Flip this to true to bring it back; all the
+// BusIcon/SiteCursor code below stays as-is either way.
+const CUSTOM_CURSOR_ENABLED = false;
+
 function audioSrc(folderName, filename) {
   return "/audio/" + encodeURIComponent(folderName) + "/" + encodeURIComponent(filename);
 }
@@ -1715,7 +1720,7 @@ export default function Home() {
 
   return (
     <div className="wrap">
-      <SiteCursor />
+      {CUSTOM_CURSOR_ENABLED && <SiteCursor />}
 
       <header>
         <div className="eyebrow">// community language archive</div>
