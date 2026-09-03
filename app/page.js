@@ -10,6 +10,9 @@ import {
   searchTranslations,
   pronunciationNotes,
 } from "../lib/glossaryData";
+import { grammarNotes } from "../lib/grammarData";
+import { ART_PIECES } from "../lib/artData";
+import { exampleSentences } from "../lib/exampleSentencesData";
 
 // Default state of the bus-cursor toggle for a first-time visitor (no
 // saved choice yet). Each visitor can flip it themselves via the footer
@@ -98,6 +101,13 @@ function TranslateBox() {
           collected so far, and tells you honestly when something isn't
           there.
         </p>
+        <p className="section-note">
+          It's also forgiving about glottal stops (') and diaereses (ä, ë,
+          ï, ö, ü) — type the word with or without them and it still
+          matches. It also has closest-match logic for bad-spelling
+          tolerance, so misspelled words and phrases still find the
+          closest match on file.
+        </p>
         <div className="search-field">
           <input
             type="text"
@@ -120,6 +130,11 @@ function TranslateBox() {
                   <div className="entry-head">
                     <span className="lang-label">kaq</span>
                     <span className="headword">{r.kaqchikel}</span>
+                    {r._fuzzy && (
+                      <span className="pronunciation-cue">
+                        closest match — not exact
+                      </span>
+                    )}
                   </div>
                 )}
                 {r.spanish && (
@@ -156,139 +171,6 @@ function artSrc(filename) {
   return "/art/" + encodeURIComponent(filename);
 }
 
-// Each art piece pairs a photograph with a Kaqchikel translation the user
-// wrote over/alongside someone else's song lyrics or a literary quote. The
-// lyric/quote text itself is never reproduced here as separate text (it's
-// copyrighted, and a translation of it is still a derivative of it) — the
-// full piece, in both languages, lives in the image. What IS reproduced is
-// a small "word bank": a handful of individual Kaqchikel words pulled out
-// and glossed on their own (not in the original line order), the same way
-// any of the standalone glossary entries elsewhere on this site work.
-// These glosses are Claude's best-guess reading from context, not a
-// verified dictionary source — treat them as a draft pending review.
-const ART_PIECES = [
-  {
-    key: "surrender-1",
-    title: "Untitled",
-    credit: "Maggie Rogers, “Surrender”",
-    file: "surrender-1.jpg",
-    wordBank: [
-      { kaq: "b'enäq", en: "in love", morph: "root only — no prefix" },
-      { kaq: "nuk'u'x", en: "my heart", morph: "nu- (my) + k'u'x (heart)" },
-      { kaq: "nuq'a'", en: "my hand", morph: "nu- (my) + q'a' (hand)" },
-      { kaq: "rub'aqil", en: "the bone", morph: "ru- (usually 3rd person possessive 'its', but functioning here as 'the') + b'aqil (bone — b'aq is the root; -il may mark plural here, needs grammatical clarification)" },
-      { kaq: "woyowal", en: "my anger", morph: "w- (my, before a vowel) + oyowal (anger)" },
-      { kaq: "ya'", en: "water", morph: "root only — no prefix" },
-    ],
-  },
-  {
-    key: "surrender-2",
-    title: "Untitled",
-    credit: "Maggie Rogers, “Surrender”",
-    file: "surrender-2.jpg",
-    wordBank: [
-      { kaq: "k'u'x", en: "heart", morph: "root only — no prefix" },
-      { kaq: "q'ojom", en: "music / instrument", morph: "root only — no prefix" },
-      { kaq: "saqi'l", en: "light / brightness", morph: "saq (light) + -i'l (noun suffix)" },
-    ],
-  },
-  {
-    key: "above-and-beyond",
-    title: "Untitled",
-    credit: "Jhené Aiko, “Above and Beyond”",
-    file: "above-and-beyond.jpg",
-    wordBank: [
-      { kaq: "napaxij", en: "you break (it)", morph: "na- (incompletive) + paxij (root: to break)" },
-      { kaq: "qitzij", en: "truth", morph: "root only — no prefix" },
-      { kaq: "tob'ej", en: "to fight for / help", morph: "root only — no prefix" },
-      { kaq: "wanima'", en: "your heart", morph: "aw- (your, before a vowel) + anima' (heart)" },
-      { kaq: "wetaman", en: "I know", morph: "w- (I, before a vowel) + etaman (root: to know)" },
-    ],
-  },
-  {
-    key: "risk-fkj-bas",
-    title: "Untitled",
-    credit: "FKJ, Bas & Rikkat, “Risk”",
-    file: "risk-fkj-bas.jpg",
-    wordBank: [
-      { kaq: "ajaw", en: "god / lord", morph: "root only — no prefix" },
-      { kaq: "b'ix", en: "song", morph: "root only — no prefix" },
-      { kaq: "ch'umil", en: "star", morph: "root only — no prefix" },
-      { kaq: "juyu'", en: "mountain / land", morph: "root only — no prefix" },
-      { kaq: "winaqi'", en: "people", morph: "winaq (person) + -i' (plural)" },
-    ],
-  },
-  {
-    key: "johnny-ps-caddy",
-    title: "Untitled",
-    credit: "Benny the Butcher & J. Cole, “Johnny P's Caddy”",
-    file: "johnny-ps-caddy.jpg",
-    wordBank: [
-      { kaq: "ala'", en: "boy", morph: "root only — no prefix" },
-      { kaq: "aq'a'", en: "night", morph: "root only — no prefix" },
-      { kaq: "koj", en: "lion", morph: "root only — no prefix" },
-      { kaq: "qitzij", en: "truth", morph: "root only — no prefix" },
-      { kaq: "saqil", en: "light", morph: "saq (light) + -il (noun suffix)" },
-    ],
-  },
-  {
-    key: "all-eyes-on-me",
-    title: "Untitled",
-    credit: "EarthGang, “All Eyes on Me”",
-    file: "all-eyes-on-me.jpg",
-    wordBank: [
-      { kaq: "nib'ixan", en: "she sings", morph: "ni- (incompletive) + b'ixan (root: to sing)" },
-      { kaq: "nub'ix", en: "my song", morph: "nu- (my) + b'ix (song)" },
-      { kaq: "nujolom", en: "my head / mind", morph: "nu- (my) + jolom (head)" },
-      { kaq: "retaman", en: "she knows", morph: "r- (she/he, before a vowel) + etaman (root: to know)" },
-    ],
-  },
-  {
-    key: "ondaatje",
-    title: "Untitled",
-    credit: "Michael Ondaatje (quote)",
-    file: "ondaatje.jpg",
-    wordBank: [
-      { kaq: "näj", en: "far / a long time", morph: "root only — no prefix" },
-      { kaq: "nq'axon", en: "it hurts / aches", morph: "n- (incompletive) + q'axon (root: to hurt, to pass through)" },
-      { kaq: "nuk'u'x", en: "my heart", morph: "nu- (my) + k'u'x (heart)" },
-      { kaq: "wawe'", en: "here", morph: "root only — no prefix" },
-    ],
-  },
-  {
-    key: "gabriel-hirsch",
-    title: "Untitled",
-    credit: "Edward Hirsch, “Gabriel”",
-    file: "gabriel-hirsch.jpg",
-    wordBank: [
-      { kaq: "chwa'q", en: "morning", morph: "root only — no prefix" },
-      { kaq: "juna'", en: "year", morph: "root only — no prefix" },
-    ],
-  },
-  {
-    key: "light-on",
-    title: "Untitled",
-    credit: "Maggie Rogers, “Light On”",
-    file: "light-on.jpg",
-    wordBank: [
-      { kaq: "jumul", en: "once / together", morph: "root only — no prefix" },
-      { kaq: "nuk'u'x", en: "my heart", morph: "nu- (my) + k'u'x (heart)" },
-      { kaq: "saqil", en: "light", morph: "saq (light) + -il (noun suffix)" },
-    ],
-  },
-  {
-    key: "stay-mac-miller",
-    title: "Untitled",
-    credit: "Mac Miller, “Stay” / Xavier Rudd, “Ocean Floor”",
-    file: "stay-mac-miller.jpg",
-    wordBank: [
-      { kaq: "nab'ij", en: "you say", morph: "na- (incompletive) + b'ij (root: to say)" },
-      { kaq: "palow", en: "ocean / sea", morph: "root only — no prefix" },
-      { kaq: "wetaman", en: "I know", morph: "w- (I, before a vowel) + etaman (root: to know)" },
-      { kaq: "yab'e", en: "you go / leave", morph: "ya- (you, incompletive) + b'e (root: to go)" },
-    ],
-  },
-];
 
 // Matches a word-bank word against the shared LANGUAGE AMENDMENTS log, so a
 // noted word shows up right where it actually lives, not just in the
@@ -356,6 +238,13 @@ function ArtPiece({ piece, amendments }) {
       </summary>
       <div className="panel-body">
         <img className="art-image" src={artSrc(piece.file)} alt={piece.credit} />
+        {piece.extraImages && piece.extraImages.length > 0 && (
+          <div className="art-notes-pages">
+            {piece.extraImages.map((img, i) => (
+              <img className="art-image art-notes-page" src={artSrc(img)} alt={`${piece.credit} -- working notes page ${i + 1}`} key={img} />
+            ))}
+          </div>
+        )}
         <div className="citation">Lyrics/quote and photograph: see full piece above. Kaqchikel translation and photography by Abra Kinkopf.</div>
         <div className="breakdown">
           <div className="breakdown-title">Word bank</div>
@@ -1253,6 +1142,183 @@ function SongEntry({ song }) {
   );
 }
 
+// GRAMMAR section: one tile per working-note page (lib/grammarData.js).
+// Clicking a tile opens a detail view, not just the bare photo -- the
+// photo stays visible up top, and whatever structured info exists for
+// that page (a real color-coded example sentence, a morpheme breakdown,
+// notes, citations) renders underneath it. Items with nothing structured
+// yet still open into this same view with just the photo, so it never
+// feels like "a closed photo" -- info gets filled in per page over time.
+// Arrows step through the whole set of notes, same as the ART gallery.
+function SentenceRow({ row }) {
+  return (
+    <div className="sentence-line">
+      <span className="lang-label">{row.lang}</span>
+      {row.chunks.map((c, i) => (
+        <span key={i}>
+          {c.color ? (
+            <span className={`hl ${c.color}`}>{c.text}</span>
+          ) : (
+            c.text
+          )}{" "}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function GrammarDetail({ note }) {
+  return (
+    <div className="grammar-detail">
+      <img
+        className="grammar-detail-image"
+        src={`/grammar/${note.image}`}
+        alt={note.phrase}
+        onClick={(e) => e.stopPropagation()}
+      />
+      {note.image2 && (
+        <img
+          className="grammar-detail-image"
+          src={`/grammar/${note.image2}`}
+          alt={note.phrase}
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
+
+      <div className="grammar-detail-body" onClick={(e) => e.stopPropagation()}>
+        <div className="dict-ref">
+          <span className="lang-label">phrase</span> {note.phrase} --{" "}
+          <em>{note.gloss}</em>
+        </div>
+
+        {note.sentenceRows && (
+          <div className="sentence-card">
+            {note.sentenceRows.map((row, i) => (
+              <SentenceRow row={row} key={i} />
+            ))}
+          </div>
+        )}
+
+        {note.morphemes && note.morphemes.length > 0 && (
+          <div className="breakdown">
+            <div className="breakdown-title">Breakdown</div>
+            {note.morphemes.map((m, i) => (
+              <div className="breakdown-row" key={i}>
+                {m}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {note.note && <p className="section-note">{note.note}</p>}
+        {note.citation && <div className="citation">{note.citation}</div>}
+        {note.sentenceCitation && (
+          <div className="citation">{note.sentenceCitation}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function GrammarGallery({ notes }) {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  useEffect(() => {
+    if (openIndex === null) return;
+    function onKeyDown(e) {
+      if (e.key === "Escape") setOpenIndex(null);
+      if (e.key === "ArrowRight") {
+        setOpenIndex((i) => (i + 1) % notes.length);
+      }
+      if (e.key === "ArrowLeft") {
+        setOpenIndex((i) => (i - 1 + notes.length) % notes.length);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [openIndex, notes.length]);
+
+  return (
+    <>
+      <div className="grammar-gallery-grid">
+        {notes.map((note, i) => (
+          <button
+            type="button"
+            className="grammar-gallery-thumb"
+            key={note.id}
+            onClick={() => setOpenIndex(i)}
+            aria-label={`Open ${note.phrase}`}
+          >
+            <img src={`/grammar/${note.image}`} alt={note.phrase} />
+          </button>
+        ))}
+      </div>
+
+      {openIndex !== null && (
+        <div className="grammar-lightbox" onClick={() => setOpenIndex(null)}>
+          <button
+            type="button"
+            className="grammar-lightbox-close"
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenIndex(null);
+            }}
+            aria-label="Close"
+          >
+            &times;
+          </button>
+          <button
+            type="button"
+            className="grammar-lightbox-nav grammar-lightbox-prev"
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenIndex((openIndex - 1 + notes.length) % notes.length);
+            }}
+            aria-label="Previous"
+          >
+            &lsaquo;
+          </button>
+          <GrammarDetail note={notes[openIndex]} />
+          <button
+            type="button"
+            className="grammar-lightbox-nav grammar-lightbox-next"
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenIndex((openIndex + 1) % notes.length);
+            }}
+            aria-label="Next"
+          >
+            &rsaquo;
+          </button>
+          <div className="grammar-lightbox-counter">
+            {openIndex + 1} / {notes.length}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function GrammarSection() {
+  return (
+    <details className="panel">
+      <summary>
+        <span className="panel-title">GRAMMAR</span>
+        <span className="panel-count">{grammarNotes.length} pages</span>
+      </summary>
+      <div className="panel-body">
+        <p className="section-note">
+          Working-note pages from translating a personal project -- click
+          any one to open it and step through the set. A first pass; we're
+          filling in real structured info (like the example sentence in
+          "yin k'o pa pwaqb'al chupam") page by page.
+        </p>
+        <GrammarGallery notes={grammarNotes} />
+      </div>
+    </details>
+  );
+}
+
 function ChildrenSongsSection() {
   return (
     <details className="panel">
@@ -2025,7 +2091,7 @@ export default function Home() {
       <details className="panel">
         <summary>
           <span className="panel-title">EXAMPLE SENTENCES</span>
-          <span className="panel-count">1 set</span>
+          <span className="panel-count">{exampleSentences.length} set{exampleSentences.length === 1 ? "" : "s"}</span>
         </summary>
         <div className="panel-body">
           <p className="section-note">
@@ -2034,93 +2100,59 @@ export default function Home() {
             annotation.
           </p>
 
-          <div className="sentence-card">
-            <div className="sentence-line">
-              <span className="lang-label">es</span>
-              <span className="hl yellow">Míreme</span>{" "}
-              <span className="hl green">a los ojos</span>{" "}
-              <span className="hl orange">y verá</span>{" "}
-              <span className="hl purple">que estoy diciendo</span>{" "}
-              <span className="hl blue">la verdad.</span>
-            </div>
-            <div className="sentence-line">
-              <span className="lang-label">kaq</span>
-              <span className="hl yellow">Ta-tzu'</span>{" "}
-              <span className="hl green">re nu-vech</span>{" "}
-              <span className="hl orange">y xta-tz'et</span>{" "}
-              <span
-                className="hl indigo"
-                title="Uncertain match — see note below"
-              >
-                chi
-              </span>{" "}
-              <span className="hl blue">kitzij ri</span>{" "}
-              <span className="hl purple">nin-bij.</span>
-            </div>
-            <div className="sentence-line">
-              <span className="lang-label">en</span>
-              <span className="hl yellow">Look me</span>{" "}
-              <span className="hl green">in the eyes</span>{" "}
-              <span className="hl orange">and you will see</span>{" "}
-              <span className="hl purple">that I'm telling</span>{" "}
-              <span className="hl blue">the truth.</span>
-            </div>
-            <div className="sentence-meta">
-              <div className="dict-ref">
-                <span className="lang-label">headword</span> mirar —{" "}
-                <em>-tzu' (vt1)</em>
+          {exampleSentences.map((sentence) => (
+            <div className="sentence-card" key={sentence.id}>
+              {sentence.sentenceRows.map((row) => (
+                <div className="sentence-line" key={row.lang}>
+                  <span className="lang-label">{row.lang}</span>
+                  {row.chunks.map((c, i) => (
+                    <span key={i}>
+                      <span className={`hl ${c.color}`} title={c.title}>
+                        {c.text}
+                      </span>{" "}
+                    </span>
+                  ))}
+                </div>
+              ))}
+              <div className="sentence-meta">
+                {sentence.headword && (
+                  <div className="dict-ref">
+                    <span className="lang-label">headword</span>{" "}
+                    {sentence.headword}
+                  </div>
+                )}
+                {sentence.uncertainNote && (
+                  <div className="uncertain-note">
+                    Note: {sentence.uncertainNote}
+                  </div>
+                )}
               </div>
-              <div className="uncertain-note">
-                Note: I think "chi" actually links to "that" for "nin-bij."
-              </div>
-            </div>
 
-            <div className="breakdown">
-              <div className="breakdown-title">Direct translations</div>
-              <div className="breakdown-row">
-                <span className="swatch yellow"></span>Míreme / Ta-tzu' / Look
-                me
+              <div className="breakdown">
+                <div className="breakdown-title">Direct translations</div>
+                {sentence.breakdown.map((b, i) => (
+                  <div className="breakdown-row" key={i}>
+                    <span className={`swatch ${b.color}`}></span>
+                    {b.unmatched
+                      ? `${b.kaq} — unmatched (see note above)`
+                      : `${b.es} / ${b.kaq} / ${b.en}`}
+                  </div>
+                ))}
               </div>
-              <div className="breakdown-row">
-                <span className="swatch green"></span>a los ojos / re nu-vech /
-                in the eyes
-              </div>
-              <div className="breakdown-row">
-                <span className="swatch orange"></span>y verá / y xta-tz'et /
-                and you will see
-              </div>
-              <div className="breakdown-row">
-                <span className="swatch purple"></span>que estoy diciendo /
-                nin-bij / that I'm telling
-              </div>
-              <div className="breakdown-row">
-                <span className="swatch blue"></span>la verdad / kitzij ri / the
-                truth
-              </div>
-              <div className="breakdown-row">
-                <span className="swatch indigo"></span>chi — unmatched (see
-                note above)
-              </div>
-            </div>
-          </div>
 
-          <div className="citation">
-            Cited from: <em>Diccionario Español–Cakchiquel–Inglés</em>. Robert
-            W. Blair, John S. Robertson, Larry Richman, Greg Sansom, Julio
-            Salazar, Juan Yool, Alejandro Choc. Brigham Young University,
-            Provo, Utah, U.S.A. — Language and Intercultural Research Center,
-            New World Languages Research Division.
-          </div>
-          <div className="citation">
-            Color-coding and Kaqchikel–Spanish–English alignment by Abra
-            Kinkopf.
-          </div>
+              {sentence.citations.map((c, i) => (
+                <div className="citation" key={i}>{c.text}</div>
+              ))}
+            </div>
+          ))}
         </div>
       </details>
 
       {audioCollections.map((collection) => (
         <AudioCollection key={collection.key} {...collection} />
       ))}
+
+      <GrammarSection />
 
       <ChildrenSongsSection />
 

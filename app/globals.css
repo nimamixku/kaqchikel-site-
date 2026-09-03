@@ -387,6 +387,7 @@ header p.desc{
 .hl.purple{background:#E3D1F5;}
 .hl.blue{background:#C4E2F5;}
 .hl.indigo{background:#B9A6EE;border:1px dashed #6B5CB8;}
+.hl.pink{background:#F6CBD9;}
 .sentence-meta{
   margin-top:12px;
   padding-top:12px;
@@ -445,6 +446,7 @@ header p.desc{
 .swatch.purple{background:#E3D1F5;}
 .swatch.blue{background:#C4E2F5;}
 .swatch.indigo{background:#B9A6EE;border:1px dashed #6B5CB8;}
+.swatch.pink{background:#F6CBD9;}
 
 .intake-list{
   display:flex;
@@ -906,6 +908,107 @@ footer{
   color:var(--ink);
 }
 
+/* GRAMMAR section: a simple thumbnail grid that opens into a full-screen
+   lightbox with prev/next navigation -- the whole set is meant to be
+   stepped through together, not read as separate standalone cards. */
+.grammar-gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));
+  gap:8px;
+  margin-top:10px;
+}
+.grammar-gallery-thumb{
+  display:block;
+  padding:0;
+  border:1px solid var(--line);
+  background:none;
+  cursor:pointer;
+  overflow:hidden;
+  aspect-ratio:1;
+}
+.grammar-gallery-thumb img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.grammar-gallery-thumb:hover{
+  border-color:var(--ink-dim, #888);
+}
+.grammar-lightbox{
+  position:fixed;
+  inset:0;
+  background:var(--bg);
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow-y:auto;
+  padding:60px 0;
+}
+.grammar-lightbox-close{
+  position:fixed;
+  top:16px;
+  right:20px;
+  z-index:3;
+  background:none;
+  border:none;
+  color:var(--ink);
+  font-size:32px;
+  line-height:1;
+  cursor:pointer;
+  padding:4px 10px;
+}
+.grammar-lightbox-nav{
+  position:fixed;
+  top:60px;
+  bottom:60px;
+  width:60px;
+  z-index:2;
+  background:none;
+  border:none;
+  color:var(--ink-soft);
+  font-size:48px;
+  line-height:1;
+  cursor:pointer;
+}
+.grammar-lightbox-prev{ left:0; }
+.grammar-lightbox-next{ right:0; }
+.grammar-lightbox-counter{
+  position:fixed;
+  bottom:16px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:2;
+  color:var(--ink-faint);
+  font-size:12px;
+}
+
+.grammar-detail{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+  max-width:640px;
+  width:100%;
+  padding:0 70px;
+  margin:0 auto;
+}
+.grammar-detail-image{
+  display:block;
+  max-width:100%;
+  max-height:50vh;
+  width:auto;
+  height:auto;
+  border:1px solid var(--line);
+}
+.grammar-detail-body{
+  width:100%;
+  text-align:left;
+}
+
 /* ART section: each piece is its own nested panel (image + word bank),
    sitting inside the outer ART panel the same way audio collections
    nest inside their own outer panel. */
@@ -923,6 +1026,15 @@ footer{
   height:auto;
   border:1px solid var(--line);
   margin-top:4px;
+}
+.art-notes-pages{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:8px;
+}
+.art-notes-page{
+  margin-top:0;
 }
 .word-bank{
   display:flex;
