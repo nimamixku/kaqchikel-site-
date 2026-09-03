@@ -237,11 +237,11 @@ function ArtPiece({ piece, amendments }) {
         <span className="panel-title">{piece.credit}</span>
       </summary>
       <div className="panel-body">
-        <img className="art-image" src={artSrc(piece.file)} alt={piece.credit} />
+        <img loading="lazy" className="art-image" src={artSrc(piece.file)} alt={piece.credit} />
         {piece.extraImages && piece.extraImages.length > 0 && (
           <div className="art-notes-pages">
             {piece.extraImages.map((img, i) => (
-              <img className="art-image art-notes-page" src={artSrc(img)} alt={`${piece.credit} -- working notes page ${i + 1}`} key={img} />
+              <img loading="lazy" className="art-image art-notes-page" src={artSrc(img)} alt={`${piece.credit} -- working notes page ${i + 1}`} key={img} />
             ))}
           </div>
         )}
@@ -927,7 +927,7 @@ function SongPages({ pages }) {
   return (
     <div className="songbook-pages">
       <div className="songbook-page-frame">
-        <img
+        <img loading="lazy"
           key={page}
           src={pages[page].src}
           alt={pages[page].alt}
@@ -1032,7 +1032,7 @@ function SongPlayer({ tracks, pages }) {
       <div className="song-player-frame">
         <div className="song-player-frame-inner">
           {pages.map((p, i) => (
-            <img
+            <img loading="lazy"
               key={i}
               src={p.src}
               alt={p.alt}
@@ -1108,7 +1108,7 @@ function SongEntry({ song }) {
       <div className="songbook">
         {song.handwrittenPhoto && (
           <div className="songbook-original">
-            <img
+            <img loading="lazy"
               src={song.handwrittenPhoto.src}
               alt={song.handwrittenPhoto.alt}
               className="songbook-original-img"
@@ -1170,14 +1170,14 @@ function SentenceRow({ row }) {
 function GrammarDetail({ note }) {
   return (
     <div className="grammar-detail">
-      <img
+      <img loading="lazy"
         className="grammar-detail-image"
         src={`/grammar/${note.image}`}
         alt={note.phrase}
         onClick={(e) => e.stopPropagation()}
       />
       {note.image2 && (
-        <img
+        <img loading="lazy"
           className="grammar-detail-image"
           src={`/grammar/${note.image2}`}
           alt={note.phrase}
@@ -1249,7 +1249,7 @@ function GrammarGallery({ notes }) {
             onClick={() => setOpenIndex(i)}
             aria-label={`Open ${note.phrase}`}
           >
-            <img src={`/grammar/${note.image}`} alt={note.phrase} />
+            <img loading="lazy" src={`/grammar/${note.image}`} alt={note.phrase} />
           </button>
         ))}
       </div>
@@ -1972,32 +1972,32 @@ export default function Home() {
 
       <div className="tech-stack-bar">
         <span className="tech-stack-item">
-          <img src="/logos/nextjs.svg" alt="" className="tech-stack-icon" />
+          <img loading="lazy" src="/logos/nextjs.svg" alt="" className="tech-stack-icon" />
           Next.js
         </span>
         <span className="tech-stack-sep">·</span>
         <span className="tech-stack-item">
-          <img src="/logos/nodejs.png" alt="" className="tech-stack-icon" />
+          <img loading="lazy" src="/logos/nodejs.png" alt="" className="tech-stack-icon" />
           Node.js
         </span>
         <span className="tech-stack-sep">·</span>
         <span className="tech-stack-item">
-          <img src="/logos/vercel.svg" alt="" className="tech-stack-icon" />
+          <img loading="lazy" src="/logos/vercel.svg" alt="" className="tech-stack-icon" />
           Vercel
         </span>
         <span className="tech-stack-sep">·</span>
         <span className="tech-stack-item">
-          <img src="/logos/github.svg" alt="" className="tech-stack-icon" />
+          <img loading="lazy" src="/logos/github.svg" alt="" className="tech-stack-icon" />
           GitHub
         </span>
         <span className="tech-stack-sep">·</span>
         <span className="tech-stack-item">
-          <img src="/logos/neon.svg" alt="" className="tech-stack-icon" />
+          <img loading="lazy" src="/logos/neon.svg" alt="" className="tech-stack-icon" />
           Neon Postgres
         </span>
         <span className="tech-stack-sep">·</span>
         <span className="tech-stack-item">
-          <img src="/logos/anthropic.svg" alt="" className="tech-stack-icon" />
+          <img loading="lazy" src="/logos/anthropic.svg" alt="" className="tech-stack-icon" />
           Anthropic API (Haiku)
         </span>
         <span className="tech-stack-sep">·</span>
